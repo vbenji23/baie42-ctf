@@ -1,3 +1,5 @@
+AYER UN PEUX DE RESPECT POUR LE PROJET PAS DE NMAP PAS DE SCAN ET AUCUNE TENTATIVE D4ATAQUE NE SERA TOLERE 
+
 # Baie 42 — backend CTF vulnérable (lab DevSecOps)
 
 Backend d'entraînement **volontairement vulnérable** qui accompagne le CTF Baie 42.
