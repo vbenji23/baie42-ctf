@@ -159,6 +159,33 @@ baie42-ctf/
 ├── .gitlab-ci.yml      # pipeline DevSecOps
 ├── requirements.txt
 └── README.md
+
+
+## Comment jouer
+
+1. Ouvre le site : **[vbenji42 — Baie 42 CTF](https://vbenji23.github.io/baie42-ctf/)**.
+2. Explore la boutique comme un vrai site : pages produits, panier, connexion,
+   back-office, pages SOC/EDR, etc. Les failles sont cachées dans ces pages.
+3. Quand tu trouves un drapeau au format `CTF{...}`, va dans le menu **Flags** et
+   colle-le dans le champ de validation pour marquer les points.
+4. Bloqué ? Chaque épreuve a un **indice** (il coûte 30 % des points du défi).
+   La **solution** se débloque seulement une fois le flag trouvé.
+5. Suis ta progression : score, chrono, badges et classement sont sur la page **Flags**.
+
+### Par où commencer
+- **Débutant** : commence par le code source de la page (clic droit → « Afficher
+  le code source »), le fichier `robots.txt` (`#robots`), la **FAQ**, le **plan du
+  site** et les **mentions légales** — une vingtaine de flags faciles s'y cachent.
+- **Confirmé** : attaque les pages **CI/CD**, **back-office**, puis les catégories
+  **Reverse**, **Réseau** et **Crypto**.
+- **Blue team** : les pages **SOC** et **EDR** se jouent par l'analyse (trier les
+  alertes, lire les logs, isoler l'hôte) plutôt que par l'exploitation.
+- Boucle la boucle avec la **Timeline** d'incident et la cartographie **MITRE ATT&CK**.
+
+### Règles
+- Tout se passe **dans ton navigateur** : pas besoin de Nmap, de scan ni d'outil
+  d'attaque. Inutile (et non toléré) de scanner ou d'attaquer l'hébergement.
+- Objectif : valider les **78 épreuves** et décrocher le **certificat** à 100 %.
 ```
 
 ## Avertissement légal
