@@ -1,3 +1,5 @@
+https://vbenji23.github.io/baie42-ctf/ liens du site ctf si vous vouler le visiter 
+
 AYER UN PEUX DE RESPECT POUR LE PROJET PAS DE NMAP PAS DE SCAN ET AUCUNE TENTATIVE D4ATAQUE NE SERA TOLERE 
 
 # Baie 42 — backend CTF vulnérable (lab DevSecOps)
