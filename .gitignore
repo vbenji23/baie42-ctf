@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+baie42.db
+secret.txt
+.venv/
+venv/

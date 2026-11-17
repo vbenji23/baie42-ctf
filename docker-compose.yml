@@ -1,0 +1,14 @@
+# Lab vulnerable Baie 42 — a lancer en local / reseau isole UNIQUEMENT.
+services:
+  baie42-backend:
+    build: .
+    container_name: baie42-backend
+    ports:
+      # Bind sur la loopback : accessible seulement depuis ta machine.
+      - "127.0.0.1:5000:5000"
+    restart: "no"
+    # Durcissement de base du conteneur
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

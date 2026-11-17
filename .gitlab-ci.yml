@@ -1,0 +1,57 @@
+# Pipeline DevSecOps pour le lab Baie 42.
+# build -> test -> security (Gitleaks + Trivy, BLOQUANTS) -> deploy manuel.
+stages:
+  - build
+  - test
+  - security
+  - deploy
+
+variables:
+  IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+
+build:
+  stage: build
+  image: python:3.12-slim
+  script:
+    - pip install --no-cache-dir -r requirements.txt
+    - python -c "import app; print('import OK')"
+
+test:
+  stage: test
+  image: python:3.12-slim
+  script:
+    - pip install --no-cache-dir -r requirements.txt
+    - python -c "import app; app.init_db(); print('init DB OK')"
+
+# --- Securite : scan de secrets. BLOQUANT (lecon du site : secrets en dur). ---
+gitleaks:
+  stage: security
+  image:
+    name: zricethezav/gitleaks:latest
+    entrypoint: [""]
+  script:
+    - gitleaks detect --source . --verbose --redact
+  allow_failure: false   # le job echoue -> le pipeline s'arrete
+
+# --- Securite : scan de vulnerabilites (image + dependances). BLOQUANT. ---
+trivy:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --exit-code 1 .
+  allow_failure: false
+
+# --- Deploiement : MANUEL et seulement si la securite est passee. ---
+deploy:
+  stage: deploy
+  image: docker:27
+  services:
+    - docker:27-dind
+  script:
+    - docker build -t "$IMAGE" .
+    - echo "Image construite : $IMAGE (push desactive dans ce lab)"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual   # pas de deploiement automatique
